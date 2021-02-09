@@ -1,19 +1,18 @@
-import { getBigramMatrix, getTrigramMatrix } from './nlp-functions'
+import { BigramMatrix } from './bigram'
 
 interface GibberishScorerInterface {
-    bigramLogMatrix: number[][]
-    trigramLogMatrix: number[][][]
-    retrainBigramMatrix: (text: string) => void
+    bigramMatrix: BigramMatrix
+    trainBigramMatrix: (text: string) => void
+    getBigramScore: (text: string) => number
 }
 
 export class GibberishScorer implements GibberishScorerInterface {
-    bigramLogMatrix: number[][]
-    trigramLogMatrix: number[][][]
+    bigramMatrix: BigramMatrix
+
     constructor() {
-        this.bigramLogMatrix = getBigramMatrix()
-        this.trigramLogMatrix = getTrigramMatrix()
+        this.bigramMatrix = new BigramMatrix()
     }
-    retrainBigramMatrix = (text: string): void => {
-        this.bigramLogMatrix = []
-    }
+
+    trainBigramMatrix = (text: string): void => this.bigramMatrix.train(text)
+    getBigramScore = (text: string): number => this.bigramMatrix.getScore(text)
 }
