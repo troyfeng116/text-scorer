@@ -27,3 +27,7 @@ export const charCodeToIndex = (charCode: number): number => {
 export const cleanTrainingText = (text: string): string => {
     return text.toLowerCase().replace(/\.|\?|\!|\,|\&/gi, '')
 }
+
+export const cleanTextToScore = (text: string): string => {
+    return text.toLowerCase().replace(/\s{2,}/gi, ' ')
+}

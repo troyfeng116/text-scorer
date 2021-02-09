@@ -6,14 +6,15 @@
     "types": "./lib/index.d.ts",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "build": "rm -rf lib && tsc"
+        "build": "rm -rf lib && tsc",
+        "sandbox": "tsc src/sandbox.ts --outDir lib; node lib/sandbox.js"
     },
     "repository": {
         "type": "git",
         "url": "git+https://github.com/troyfeng116/gibberish-scorer.git"
     },
     "keywords": [],
-    "author": "",
+    "author": "Troy Feng",
     "license": "MIT",
     "bugs": {
         "url": "https://github.com/troyfeng116/gibberish-scorer/issues"
