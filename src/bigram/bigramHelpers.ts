@@ -1,9 +1,8 @@
-import { ALPHA_SIZE } from '../utils/constants'
-import { charCodeToIndex, cleanTextToScore, cleanTrainingText, isAlphaOrSpace } from '../utils/helpers'
+import { cleanTextToScore, cleanTrainingText } from '../utils/helpers'
 import { BigramMatrixCutoffs, BigramMatrixRow } from './BigramMatrix'
 
 // Create n x n matrix for all n x n transition counts
-export const createEmptyBigramMatrix = (n = ALPHA_SIZE): BigramMatrixRow[] => {
+export const createEmptyBigramMatrix = (n: number): BigramMatrixRow[] => {
     const matrix: { countRow: number[]; rowTotal: number }[] = new Array(n)
     for (let i = 0; i < n; i++) {
         // Laplace smooth
@@ -13,32 +12,29 @@ export const createEmptyBigramMatrix = (n = ALPHA_SIZE): BigramMatrixRow[] => {
 }
 
 // Process character bigrams in text, store counts of each bigram in bigramMatrix
-export const trainBigramMatrix = (bigramMatrix: BigramMatrixRow[], text: string): void => {
+export const trainBigramMatrix = (bigramMatrix: BigramMatrixRow[], text: string, charCodeMap: { [key: number]: number }): void => {
     const cleanText = cleanTrainingText(text)
     for (let i = 0; i < cleanText.length - 1; i++) {
-        const c1 = cleanText.charCodeAt(i)
-        const c2 = cleanText.charCodeAt(i + 1)
+        const u = charCodeMap[cleanText.charCodeAt(i)]
+        const v = charCodeMap[cleanText.charCodeAt(i + 1)]
         // TO-DO: Replace isAlphaOrSpace with check against custom set of valid letters
-        if (isAlphaOrSpace(c1) && isAlphaOrSpace(c2)) {
-            const u = charCodeToIndex(c1)
-            const v = charCodeToIndex(c2)
+        if (u >= 0 && v >= 0) {
             bigramMatrix[u].countRow[v]++
             bigramMatrix[u].rowTotal++
         }
     }
 }
 
-// Process character bigrams in text, run bigrams through bigramMatrix and calculate average probability to normalize by length
-export const runTextThroughBigramMatrix = (bigramMatrix: BigramMatrixRow[], text: string): number => {
+// Process character bigrams in text, run bigrams through bigramMatrix and calculate average probability to normalize by length.
+// Log probabilities to prevent underflow
+export const runTextThroughBigramMatrix = (bigramMatrix: BigramMatrixRow[], text: string, charCodeMap: { [key: number]: number }): number => {
     const cleanText = cleanTextToScore(text)
     let numerator = 0,
         denominator = 0
     for (let i = 0; i < cleanText.length - 1; i++) {
-        const c1 = cleanText.charCodeAt(i)
-        const c2 = cleanText.charCodeAt(i + 1)
-        if (isAlphaOrSpace(c1) && isAlphaOrSpace(c2)) {
-            const u = charCodeToIndex(c1)
-            const v = charCodeToIndex(c2)
+        const u = charCodeMap[cleanText.charCodeAt(i)]
+        const v = charCodeMap[cleanText.charCodeAt(i + 1)]
+        if (u >= 0 && v >= 0) {
             numerator += Math.log(bigramMatrix[u].countRow[v] / bigramMatrix[u].rowTotal)
             denominator++
         }
@@ -46,13 +42,26 @@ export const runTextThroughBigramMatrix = (bigramMatrix: BigramMatrixRow[], text
     return Math.exp(numerator / (denominator === 0 ? 1 : denominator))
 }
 
-// Calculate expected cutoff scores (three levels of strictness)
-export const getCutoffScores = (bigramMatrix: BigramMatrixRow[], goodText: string[], badText: string[]): BigramMatrixCutoffs => {
-    const goodScores = goodText.map((good) => runTextThroughBigramMatrix(bigramMatrix, good))
-    const badScores = badText.map((bad) => runTextThroughBigramMatrix(bigramMatrix, bad))
+// Calculate and predict expected cutoff scores (three levels of strictness)
+export const getCutoffScores = (bigramMatrix: BigramMatrixRow[], goodText: string[], badText: string[], charCodeMap: { [key: number]: number }): BigramMatrixCutoffs => {
+    const goodScores = goodText.map((good) => runTextThroughBigramMatrix(bigramMatrix, good, charCodeMap))
+    const badScores = badText.map((bad) => runTextThroughBigramMatrix(bigramMatrix, bad, charCodeMap))
     let minGoodScore = Number.POSITIVE_INFINITY
     for (const goodScore of goodScores) minGoodScore = Math.min(minGoodScore, goodScore)
     let maxBadScore = 0
     for (const badScore of badScores) maxBadScore = Math.max(maxBadScore, badScore)
     return { low: Math.min(minGoodScore, maxBadScore), med: (minGoodScore + maxBadScore) / 2, hi: Math.max(minGoodScore, maxBadScore) }
+}
+
+// Let S = {unique chars : charsToIncludeStr}. Returns { charCodeMap: S -> [0,1,2,...,|S|-1], uniqueChars: |S| }
+export const getCharCodeMap = (charsToIncludeStr: string): { charCodeMap: { [key: number]: number }; uniqueChars: number } => {
+    const charCodeMap: { [key: number]: number } = {}
+    let index = 0
+    for (let i = 0; i < charsToIncludeStr.length; i++) {
+        const c = charsToIncludeStr.charCodeAt(i)
+        if (charCodeMap[c] >= 0) continue
+        charCodeMap[c] = index
+        index++
+    }
+    return { charCodeMap: charCodeMap, uniqueChars: index }
 }

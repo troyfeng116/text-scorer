@@ -1,7 +1,6 @@
-import { ALPHA_SIZE } from '../utils/constants'
-import { createEmptyBigramMatrix, getCutoffScores, runTextThroughBigramMatrix, trainBigramMatrix } from './bigramHelpers'
+import { defaultBadSamples, defaultGoodSamples, DEFAULT_CHARS_TO_INCLUDE } from '../utils/constants'
+import { createEmptyBigramMatrix, getCharCodeMap, getCutoffScores, runTextThroughBigramMatrix, trainBigramMatrix } from './bigramHelpers'
 import { frankensteinTrainingText } from '../data/nlp-frankenstein'
-import { defaultBadSamples, defaultGoodSamples } from '../data/goodAndBadText'
 
 export interface BigramMatrixRow {
     countRow: number[]
@@ -17,12 +16,18 @@ export interface BigramMatrixCutoffs {
 export enum BigramMatrixCutoffStrictness {
     Strict = 'Strict',
     Avg = 'Avg',
-    Loose = 'Lose',
+    Loose = 'Loose',
+}
+
+interface BigramMatrixConstructorOptions {
+    initialTrainingText?: string
+    goodSamples?: string[]
+    badSamples?: string[]
+    additionalCharsToInclude?: string
 }
 
 interface BigramMatrixInterface {
     bigramMatrix: BigramMatrixRow[]
-    alphaSize: number
     cutoffScores: BigramMatrixCutoffs
 
     train: (text: string) => void
@@ -35,29 +40,33 @@ export class BigramMatrix implements BigramMatrixInterface {
     alphaSize: number
     bigramMatrix: BigramMatrixRow[]
     cutoffScores: BigramMatrixCutoffs
+    charCodeMap: { [key: number]: number }
 
-    constructor(n = ALPHA_SIZE, initialTrainingText = frankensteinTrainingText, goodSamples = defaultGoodSamples, badSamples = defaultBadSamples) {
-        this.alphaSize = n
-        this.bigramMatrix = createEmptyBigramMatrix(n)
+    constructor(options: BigramMatrixConstructorOptions = {}) {
+        const { initialTrainingText = frankensteinTrainingText, goodSamples = defaultGoodSamples, badSamples = defaultBadSamples, additionalCharsToInclude = '' } = options
+        const { charCodeMap, uniqueChars } = getCharCodeMap(DEFAULT_CHARS_TO_INCLUDE + additionalCharsToInclude)
+        this.charCodeMap = charCodeMap
+        this.alphaSize = uniqueChars
+        this.bigramMatrix = createEmptyBigramMatrix(uniqueChars)
         this.train(initialTrainingText)
-        this.cutoffScores = getCutoffScores(this.bigramMatrix, goodSamples, badSamples)
+        this.cutoffScores = getCutoffScores(this.bigramMatrix, goodSamples, badSamples, charCodeMap)
     }
 
     train = (trainingText: string): void => {
-        trainBigramMatrix(this.bigramMatrix, trainingText)
+        trainBigramMatrix(this.bigramMatrix, trainingText, this.charCodeMap)
     }
 
     getScore = (textToScore: string): number => {
-        return runTextThroughBigramMatrix(this.bigramMatrix, textToScore)
+        return runTextThroughBigramMatrix(this.bigramMatrix, textToScore, this.charCodeMap)
     }
 
     recalibrateCutoffScores = (goodSamples = defaultGoodSamples, badSamples = defaultBadSamples): void => {
-        this.cutoffScores = getCutoffScores(this.bigramMatrix, goodSamples, badSamples)
+        this.cutoffScores = getCutoffScores(this.bigramMatrix, goodSamples, badSamples, this.charCodeMap)
     }
 
     isGibberish = (text: string, strictness = BigramMatrixCutoffStrictness.Avg): boolean => {
         const { low, med, hi } = this.cutoffScores
-        const cutoff = strictness === BigramMatrixCutoffStrictness.Strict ? hi : strictness === BigramMatrixCutoffStrictness.Avg ? med : low
+        const cutoff = strictness === BigramMatrixCutoffStrictness.Strict ? low : strictness === BigramMatrixCutoffStrictness.Avg ? med : hi
         return this.getScore(text) < cutoff
     }
 }
