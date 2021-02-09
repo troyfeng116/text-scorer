@@ -17,7 +17,7 @@ export const getAvgTrigramTransitionProbability = (word: string, probMatrix: num
 }
 
 // Run word through bi-gram probability matrix, undo natural log conversion for final average
-export const getAvgTransitionProbability = (word: string, probMatrix: number[][]): number => {
+export const getAvgBigramTransitionProbability = (word: string, probMatrix: number[][]): number => {
     let numerator = 0,
         denominator = 0
     for (let i = 0; i < word.length - 1; i++) {
