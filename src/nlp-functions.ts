@@ -56,7 +56,7 @@ const convertToProbabilityTrigramMatrix = (freqMatrix: number[][][]): number[][]
         ans.push([])
         for (let j = 0; j < freqMatrix[i].length; j++) {
             ans[i].push([])
-            for (let k = 0; k < freqMatrix[i][j].length; k++) ans[i][j].push(Math.log((freqMatrix[i][j][k] + 1) / (total + ALPHA_SIZE)))
+            for (let k = 0; k < freqMatrix[i][j].length; k++) ans[i][j].push(Math.log((freqMatrix[i][j][k] + 1) / (total + ALPHA_SIZE * ALPHA_SIZE)))
         }
     }
     return ans
@@ -89,7 +89,7 @@ const convertToProbabilityBigramMatrix = (freqMatrix: number[][]): number[][] =>
         //console.log(total)
         ans.push([])
         for (let j = 0; j < freqMatrix[i].length; j++) {
-            ans[i].push(Math.log((freqMatrix[i][j] + 1) / (total + ALPHA_SIZE * ALPHA_SIZE)))
+            ans[i].push(Math.log((freqMatrix[i][j] + 1) / (total + ALPHA_SIZE)))
         }
     }
     return ans
