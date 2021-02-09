@@ -17,8 +17,7 @@ export const trainBigramMatrix = (bigramMatrix: BigramMatrixRow[], text: string,
     for (let i = 0; i < cleanText.length - 1; i++) {
         const u = charCodeMap[cleanText.charCodeAt(i)]
         const v = charCodeMap[cleanText.charCodeAt(i + 1)]
-        // TO-DO: Replace isAlphaOrSpace with check against custom set of valid letters
-        if (u >= 0 && v >= 0) {
+        if (u !== undefined && v !== undefined) {
             bigramMatrix[u].countRow[v]++
             bigramMatrix[u].rowTotal++
         }
@@ -34,7 +33,7 @@ export const runTextThroughBigramMatrix = (bigramMatrix: BigramMatrixRow[], text
     for (let i = 0; i < cleanText.length - 1; i++) {
         const u = charCodeMap[cleanText.charCodeAt(i)]
         const v = charCodeMap[cleanText.charCodeAt(i + 1)]
-        if (u >= 0 && v >= 0) {
+        if (u !== undefined && v !== undefined) {
             numerator += Math.log(bigramMatrix[u].countRow[v] / bigramMatrix[u].rowTotal)
             denominator++
         }
@@ -59,7 +58,7 @@ export const getCharCodeMap = (charsToIncludeStr: string): { charCodeMap: { [key
     let index = 0
     for (let i = 0; i < charsToIncludeStr.length; i++) {
         const c = charsToIncludeStr.charCodeAt(i)
-        if (charCodeMap[c] >= 0) continue
+        if (charCodeMap[c] !== undefined) continue
         charCodeMap[c] = index
         index++
     }
