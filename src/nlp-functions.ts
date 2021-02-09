@@ -1,6 +1,6 @@
-import { frankensteinTrainingText } from './nlp-frankenstein'
-import { ozTrainingText } from './nlp-oz'
-import { slangTrainingText } from './nlp-slang'
+import { frankensteinTrainingText } from './data/nlp-frankenstein'
+import { ozTrainingText } from './data/nlp-oz'
+import { slangTrainingText } from './data/nlp-slang'
 
 const ALPHA_SIZE = 27
 
@@ -30,13 +30,7 @@ export const getAvgBigramTransitionProbability = (word: string, probMatrix: numb
 }
 
 export const getTrigramMatrix = (): number[][][] => {
-    const freqMatrix: number[][][] = new Array(ALPHA_SIZE)
-    for (let i = 0; i < ALPHA_SIZE; i++) {
-        freqMatrix[i] = new Array(ALPHA_SIZE)
-        for (let j = 0; j < ALPHA_SIZE; j++) {
-            freqMatrix[i][j] = new Array(ALPHA_SIZE).fill(0)
-        }
-    }
+    const freqMatrix = createEmptyTrigramMatrix()
     trainTrigramMatrix(freqMatrix, cleanTrainingText(frankensteinTrainingText))
     trainTrigramMatrix(freqMatrix, cleanTrainingText(ozTrainingText))
     trainTrigramMatrix(freqMatrix, cleanTrainingText(slangTrainingText))
@@ -70,8 +64,7 @@ const convertToProbabilityTrigramMatrix = (freqMatrix: number[][][]): number[][]
 
 // Create 27 x 27 matrix, populate with training texts
 export const getBigramMatrix = (): number[][] => {
-    const freqMatrix: number[][] = new Array(ALPHA_SIZE)
-    for (let i = 0; i < ALPHA_SIZE; i++) freqMatrix[i] = new Array(ALPHA_SIZE).fill(0)
+    const freqMatrix = createEmptyBigramMatrix()
     trainBigramMatrix(freqMatrix, cleanTrainingText(frankensteinTrainingText))
     trainBigramMatrix(freqMatrix, cleanTrainingText(ozTrainingText))
     trainBigramMatrix(freqMatrix, cleanTrainingText(slangTrainingText))
@@ -113,4 +106,23 @@ const charCodeToIndex = (charCode: number): number => {
 
 const cleanTrainingText = (text: string): string => {
     return text.toLowerCase().replace(/\.|\?|\!|\,|\&/gi, '')
+}
+
+const createEmptyBigramMatrix = (): number[][] => {
+    const matrix = new Array(ALPHA_SIZE)
+    for (let i = 0; i < ALPHA_SIZE; i++) {
+        matrix[i] = new Array(ALPHA_SIZE).fill(0)
+    }
+    return matrix
+}
+
+const createEmptyTrigramMatrix = (): number[][][] => {
+    const matrix: number[][][] = new Array(ALPHA_SIZE)
+    for (let i = 0; i < ALPHA_SIZE; i++) {
+        matrix[i] = new Array(ALPHA_SIZE)
+        for (let j = 0; j < ALPHA_SIZE; j++) {
+            matrix[i][j] = new Array(ALPHA_SIZE).fill(0)
+        }
+    }
+    return matrix
 }
