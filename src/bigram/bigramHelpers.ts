@@ -15,6 +15,7 @@ export const createEmptyBigramMatrix = (n: number): BigramMatrixRow[] => {
 // Process character bigrams in text, store counts of each bigram in bigramMatrix
 export const trainBigramMatrix = (bigramMatrix: BigramMatrixRow[], text: string, charCodeMap: { [key: number]: number }): void => {
     const cleanText = cleanTrainingText(text)
+    console.log('TRAINED ON LENGTH: ' + cleanText.length)
     for (let i = 0; i < cleanText.length - 1; i++) {
         const u = charCodeMap[cleanText.charCodeAt(i)]
         const v = charCodeMap[cleanText.charCodeAt(i + 1)]
@@ -51,5 +52,5 @@ export const getBigramCutoffScores = (bigramMatrix: BigramMatrixRow[], goodText:
     let maxBadScore = 0
     for (const badScore of badScores) maxBadScore = Math.max(maxBadScore, badScore)
     console.log(goodScores, badScores)
-    return { low: Math.min(minGoodScore, maxBadScore), med: (minGoodScore + maxBadScore) / 2, hi: Math.max(minGoodScore, maxBadScore) }
+    return { loose: Math.min(minGoodScore, maxBadScore), avg: (minGoodScore + maxBadScore) / 2, strict: Math.max(minGoodScore, maxBadScore) }
 }

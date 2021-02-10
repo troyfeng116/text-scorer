@@ -3,9 +3,9 @@ import { TrigramMatrix } from './trigram'
 
 // TO DO: Filter outliers from bad/good text score vectors
 export interface CutoffScore {
-    low: number
-    med: number
-    hi: number
+    strict: number
+    avg: number
+    loose: number
 }
 
 export enum CutoffScoreStrictness {
@@ -30,34 +30,29 @@ export interface NGramMatrixOptions {
 }
 
 interface GibberishScorerInterface {
-    bigramMatrix: BigramMatrix
-    trigramMatrix: TrigramMatrix
-
-    trainBigramMatrix: (text: string) => void
-    recalibrateBigramCutoff: (goodText: string[], badText: string[]) => void
-
-    trainTrigramMatrix: (text: string) => void
-    recalibrateTrigramCutoff: (goodText: string[], badText: string[]) => void
-
-    isGibberish: (text: string, strictness?: CutoffScoreStrictness, useBigram?: boolean) => boolean
+    NGramMatrix: NGramMatrix
+    train: (text: string) => void
+    recalibrateCutoffs: (goodSamples: string[], badSamples: string[]) => void
+    isGibberish: (text: string, strictness?: CutoffScoreStrictness) => boolean
+    getScoreInfo: (text: string) => { cutoffs: CutoffScore; score: number }
 }
 
 export class GibberishScorer implements GibberishScorerInterface {
-    bigramMatrix: BigramMatrix
-    trigramMatrix: TrigramMatrix
+    NGramMatrix: NGramMatrix
 
-    constructor(bigramOptions: NGramMatrixOptions = {}, trigramOptions: NGramMatrixOptions = {}) {
-        this.bigramMatrix = new BigramMatrix(bigramOptions)
-        this.trigramMatrix = new TrigramMatrix(trigramOptions)
+    constructor(useBigram = true, options: NGramMatrixOptions = {}) {
+        this.NGramMatrix = useBigram ? new BigramMatrix(options) : new TrigramMatrix(options)
     }
 
-    trainBigramMatrix = (text: string): void => this.bigramMatrix.train(text)
-    recalibrateBigramCutoff = (goodText: string[], badText: string[]): void => this.bigramMatrix.recalibrateCutoffScores(goodText, badText)
+    train = (text: string): void => this.NGramMatrix.train(text)
 
-    trainTrigramMatrix = (text: string): void => this.trigramMatrix.train(text)
-    recalibrateTrigramCutoff = (goodText: string[], badText: string[]): void => this.trigramMatrix.recalibrateCutoffScores(goodText, badText)
+    recalibrateCutoffs = (goodSamples: string[], badSamples: string[]): void => this.NGramMatrix.recalibrateCutoffScores(goodSamples, badSamples)
 
-    isGibberish = (text: string, strictness = CutoffScoreStrictness.Avg, useBigram = true): boolean => {
-        return useBigram ? this.bigramMatrix.isGibberish(text, strictness) : this.trigramMatrix.isGibberish(text, strictness)
+    isGibberish = (text: string, strictness = CutoffScoreStrictness.Avg): boolean => this.NGramMatrix.isGibberish(text, strictness)
+
+    getScoreInfo = (text: string): { cutoffs: CutoffScore; score: number } => {
+        const { cutoffScores } = this.NGramMatrix
+        const matrixScore = this.NGramMatrix.getScore(text)
+        return { cutoffs: cutoffScores, score: matrixScore }
     }
 }

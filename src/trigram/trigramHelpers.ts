@@ -56,5 +56,5 @@ export const getTrigramCutoffScores = (trigramMatrix: TrigramMatrixLayer[], good
     let maxBadScore = 0
     for (const badScore of badScores) maxBadScore = Math.max(maxBadScore, badScore)
     console.log(goodScores, badScores)
-    return { low: Math.min(minGoodScore, maxBadScore), med: (minGoodScore + maxBadScore) / 2, hi: Math.max(minGoodScore, maxBadScore) }
+    return { loose: Math.min(minGoodScore, maxBadScore), avg: (minGoodScore + maxBadScore) / 2, strict: Math.max(minGoodScore, maxBadScore) }
 }

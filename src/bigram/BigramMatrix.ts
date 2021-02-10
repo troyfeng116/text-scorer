@@ -42,8 +42,8 @@ export class BigramMatrix implements BigramMatrixInterface {
     }
 
     isGibberish = (text: string, strictness = CutoffScoreStrictness.Avg): boolean => {
-        const { low, med, hi } = this.cutoffScores
-        const cutoff = strictness === CutoffScoreStrictness.Strict ? low : strictness === CutoffScoreStrictness.Avg ? med : hi
+        const { loose, avg, strict } = this.cutoffScores
+        const cutoff = strictness === CutoffScoreStrictness.Strict ? strict : strictness === CutoffScoreStrictness.Avg ? avg : loose
         return this.getScore(text) < cutoff
     }
 }
