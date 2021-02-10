@@ -5,14 +5,14 @@ A configurable gibberish scorer.
 ## Installation
 
 ```bash
-npm install @troyfeng/gibberish-scorer
+npm install gibberish-scorer
 ```
 
 ## Usage and Examples
 
 ### Import module
 ```ts
-import { GibberishScorer } from '@troyfeng/gibberish-scorer'
+import { GibberishScorer } from 'gibberish-scorer'
 ...
 ```
 
