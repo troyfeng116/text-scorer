@@ -1,8 +1,8 @@
 import { defaultBadSamples, defaultGoodSamples, DEFAULT_CHARS_TO_INCLUDE } from '../utils/constants'
 import { getCharCodeMap } from '../utils/helpers'
 import { createEmptyBigramMatrix, getBigramCutoffScores, runTextThroughBigramMatrix, trainBigramMatrix } from './bigramHelpers'
-import { frankensteinTrainingText } from '../data/nlp-frankenstein'
 import { CutoffScore, CutoffScoreStrictness, NGramMatrix, NGramMatrixOptions } from '..'
+import { harryPotterTrainingText } from '../data/harry-potter-1'
 
 export interface BigramMatrixRow {
     countRow: number[]
@@ -20,7 +20,7 @@ export class BigramMatrix implements BigramMatrixInterface {
     charCodeMap: { [key: number]: number }
 
     constructor(options: NGramMatrixOptions = {}) {
-        const { initialTrainingText = frankensteinTrainingText, goodSamples = defaultGoodSamples, badSamples = defaultBadSamples, additionalCharsToInclude = '' } = options
+        const { initialTrainingText = harryPotterTrainingText, goodSamples = defaultGoodSamples, badSamples = defaultBadSamples, additionalCharsToInclude = '' } = options
         const { charCodeMap, uniqueChars } = getCharCodeMap(DEFAULT_CHARS_TO_INCLUDE + additionalCharsToInclude)
         this.charCodeMap = charCodeMap
         this.alphaSize = uniqueChars

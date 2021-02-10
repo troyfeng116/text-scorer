@@ -50,5 +50,6 @@ export const getBigramCutoffScores = (bigramMatrix: BigramMatrixRow[], goodText:
     for (const goodScore of goodScores) minGoodScore = Math.min(minGoodScore, goodScore)
     let maxBadScore = 0
     for (const badScore of badScores) maxBadScore = Math.max(maxBadScore, badScore)
+    console.log(goodScores, badScores)
     return { low: Math.min(minGoodScore, maxBadScore), med: (minGoodScore + maxBadScore) / 2, hi: Math.max(minGoodScore, maxBadScore) }
 }
