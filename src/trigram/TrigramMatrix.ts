@@ -1,6 +1,6 @@
 import { defaultBadSamples, defaultGoodSamples, DEFAULT_CHARS_TO_INCLUDE } from '../utils/constants'
 import { frankensteinTrainingText } from '../data/nlp-frankenstein'
-import { CutoffScore, CutoffScoreStrictness } from '..'
+import { CutoffScore, CutoffScoreStrictness, NGramMatrix, NGramMatrixOptions } from '..'
 import { getCharCodeMap } from '../utils/helpers'
 import { createEmptyTrigramMatrix, getTrigramCutoffScores, runTextThroughTrigramMatrix, trainTrigramMatrix } from './trigramHelpers'
 
@@ -9,21 +9,8 @@ export interface TrigramMatrixLayer {
     layerTotal: number
 }
 
-interface TrigramMatrixConstructorOptions {
-    initialTrainingText?: string
-    goodSamples?: string[]
-    badSamples?: string[]
-    additionalCharsToInclude?: string
-}
-
-interface TrigramMatrixInterface {
+interface TrigramMatrixInterface extends NGramMatrix {
     trigramMatrix: TrigramMatrixLayer[]
-    cutoffScores: CutoffScore
-
-    train: (text: string) => void
-    getScore: (text: string) => number
-    recalibrateCutoffScores: (goodSamples?: string[], badSamples?: string[]) => void
-    isGibberish: (text: string, strictness?: CutoffScoreStrictness) => boolean
 }
 
 export class TrigramMatrix implements TrigramMatrixInterface {
@@ -32,7 +19,7 @@ export class TrigramMatrix implements TrigramMatrixInterface {
     cutoffScores: CutoffScore
     charCodeMap: { [key: number]: number }
 
-    constructor(options: TrigramMatrixConstructorOptions = {}) {
+    constructor(options: NGramMatrixOptions = {}) {
         const { initialTrainingText = frankensteinTrainingText, goodSamples = defaultGoodSamples, badSamples = defaultBadSamples, additionalCharsToInclude = '' } = options
         const { charCodeMap, uniqueChars } = getCharCodeMap(DEFAULT_CHARS_TO_INCLUDE + additionalCharsToInclude)
         this.charCodeMap = charCodeMap

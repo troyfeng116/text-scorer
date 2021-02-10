@@ -14,6 +14,21 @@ export enum CutoffScoreStrictness {
     Loose = 'Loose',
 }
 
+export interface NGramMatrix {
+    cutoffScores: CutoffScore
+    train: (text: string) => void
+    getScore: (text: string) => number
+    recalibrateCutoffScores: (goodSamples?: string[], badSamples?: string[]) => void
+    isGibberish: (text: string, strictness?: CutoffScoreStrictness) => boolean
+}
+
+export interface NGramMatrixOptions {
+    initialTrainingText?: string
+    goodSamples?: string[]
+    badSamples?: string[]
+    additionalCharsToInclude?: string
+}
+
 interface GibberishScorerInterface {
     bigramMatrix: BigramMatrix
     trigramMatrix: TrigramMatrix
@@ -31,9 +46,9 @@ export class GibberishScorer implements GibberishScorerInterface {
     bigramMatrix: BigramMatrix
     trigramMatrix: TrigramMatrix
 
-    constructor() {
-        this.bigramMatrix = new BigramMatrix()
-        this.trigramMatrix = new TrigramMatrix()
+    constructor(bigramOptions: NGramMatrixOptions = {}, trigramOptions: NGramMatrixOptions = {}) {
+        this.bigramMatrix = new BigramMatrix(bigramOptions)
+        this.trigramMatrix = new TrigramMatrix(trigramOptions)
     }
 
     trainBigramMatrix = (text: string): void => this.bigramMatrix.train(text)

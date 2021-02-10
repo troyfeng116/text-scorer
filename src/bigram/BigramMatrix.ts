@@ -2,28 +2,15 @@ import { defaultBadSamples, defaultGoodSamples, DEFAULT_CHARS_TO_INCLUDE } from 
 import { getCharCodeMap } from '../utils/helpers'
 import { createEmptyBigramMatrix, getBigramCutoffScores, runTextThroughBigramMatrix, trainBigramMatrix } from './bigramHelpers'
 import { frankensteinTrainingText } from '../data/nlp-frankenstein'
-import { CutoffScore, CutoffScoreStrictness } from '..'
+import { CutoffScore, CutoffScoreStrictness, NGramMatrix, NGramMatrixOptions } from '..'
 
 export interface BigramMatrixRow {
     countRow: number[]
     rowTotal: number
 }
 
-interface BigramMatrixConstructorOptions {
-    initialTrainingText?: string
-    goodSamples?: string[]
-    badSamples?: string[]
-    additionalCharsToInclude?: string
-}
-
-interface BigramMatrixInterface {
+interface BigramMatrixInterface extends NGramMatrix {
     bigramMatrix: BigramMatrixRow[]
-    cutoffScores: CutoffScore
-
-    train: (text: string) => void
-    getScore: (text: string) => number
-    recalibrateCutoffScores: (goodSamples?: string[], badSamples?: string[]) => void
-    isGibberish: (text: string, strictness?: CutoffScoreStrictness) => boolean
 }
 
 export class BigramMatrix implements BigramMatrixInterface {
@@ -32,7 +19,7 @@ export class BigramMatrix implements BigramMatrixInterface {
     cutoffScores: CutoffScore
     charCodeMap: { [key: number]: number }
 
-    constructor(options: BigramMatrixConstructorOptions = {}) {
+    constructor(options: NGramMatrixOptions = {}) {
         const { initialTrainingText = frankensteinTrainingText, goodSamples = defaultGoodSamples, badSamples = defaultBadSamples, additionalCharsToInclude = '' } = options
         const { charCodeMap, uniqueChars } = getCharCodeMap(DEFAULT_CHARS_TO_INCLUDE + additionalCharsToInclude)
         this.charCodeMap = charCodeMap
