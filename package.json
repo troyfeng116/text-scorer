@@ -2,11 +2,15 @@
     "name": "gibberish-scorer",
     "version": "1.0.0",
     "description": "A configurable gibberish scorer.",
-    "main": "./lib/index.js",
-    "types": "./lib/index.d.ts",
+    "main": "lib/index.js",
+    "types": "lib/index.d.ts",
+    "files": [
+        "lib"
+    ],
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "build": "rm -rf lib && tsc",
+        "build": "tsc",
+        "prepare": "npm run build",
         "sandbox": "tsc src/sandbox.ts --outDir lib && node lib/sandbox.js"
     },
     "repository": {
