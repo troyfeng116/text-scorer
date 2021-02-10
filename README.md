@@ -1,4 +1,4 @@
-# gibberish-scorer (v1.0.0)
+# gibberish-scorer (v1.0.2)
 
 A configurable gibberish scorer.
 
