@@ -1,6 +1,6 @@
 {
     "name": "gibberish-scorer",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "A configurable gibberish scorer.",
     "main": "lib/index.js",
     "types": "lib/index.d.ts",

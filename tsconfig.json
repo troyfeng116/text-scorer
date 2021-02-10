@@ -3,9 +3,10 @@
         "target": "es6",
         "module": "commonjs",
         "declaration": true,
-        "outDir": "./lib",
-        "strict": true
+        "outDir": "lib",
+        "strict": true,
+        "allowJs": false
     },
     "include": ["index.ts", "src"],
-    "exclude": ["node_modules"]
+    "exclude": ["node_modules", "lib"]
 }
