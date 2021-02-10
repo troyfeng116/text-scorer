@@ -1,9 +1,10 @@
 import { cleanTextToScore, cleanTrainingText } from '../utils/helpers'
-import { BigramMatrixCutoffs, BigramMatrixRow } from './BigramMatrix'
+import { BigramMatrixRow } from './BigramMatrix'
+import { CutoffScore } from '..'
 
 // Create n x n matrix for all n x n transition counts
 export const createEmptyBigramMatrix = (n: number): BigramMatrixRow[] => {
-    const matrix: { countRow: number[]; rowTotal: number }[] = new Array(n)
+    const matrix: BigramMatrixRow[] = new Array(n)
     for (let i = 0; i < n; i++) {
         // Laplace smooth
         matrix[i] = { countRow: new Array<number>(n).fill(1), rowTotal: n }
@@ -41,8 +42,8 @@ export const runTextThroughBigramMatrix = (bigramMatrix: BigramMatrixRow[], text
     return Math.exp(numerator / (denominator === 0 ? 1 : denominator))
 }
 
-// Calculate and predict expected cutoff scores (three levels of strictness)
-export const getCutoffScores = (bigramMatrix: BigramMatrixRow[], goodText: string[], badText: string[], charCodeMap: { [key: number]: number }): BigramMatrixCutoffs => {
+// Calculate predicted expected cutoff scores (three levels of strictness)
+export const getBigramCutoffScores = (bigramMatrix: BigramMatrixRow[], goodText: string[], badText: string[], charCodeMap: { [key: number]: number }): CutoffScore => {
     const goodScores = goodText.map((good) => runTextThroughBigramMatrix(bigramMatrix, good, charCodeMap))
     const badScores = badText.map((bad) => runTextThroughBigramMatrix(bigramMatrix, bad, charCodeMap))
     let minGoodScore = Number.POSITIVE_INFINITY
@@ -50,17 +51,4 @@ export const getCutoffScores = (bigramMatrix: BigramMatrixRow[], goodText: strin
     let maxBadScore = 0
     for (const badScore of badScores) maxBadScore = Math.max(maxBadScore, badScore)
     return { low: Math.min(minGoodScore, maxBadScore), med: (minGoodScore + maxBadScore) / 2, hi: Math.max(minGoodScore, maxBadScore) }
-}
-
-// Let S = {unique chars : charsToIncludeStr}. Returns { charCodeMap: S -> [0,1,2,...,|S|-1], uniqueChars: |S| }
-export const getCharCodeMap = (charsToIncludeStr: string): { charCodeMap: { [key: number]: number }; uniqueChars: number } => {
-    const charCodeMap: { [key: number]: number } = {}
-    let index = 0
-    for (let i = 0; i < charsToIncludeStr.length; i++) {
-        const c = charsToIncludeStr.charCodeAt(i)
-        if (charCodeMap[c] !== undefined) continue
-        charCodeMap[c] = index
-        index++
-    }
-    return { charCodeMap: charCodeMap, uniqueChars: index }
 }

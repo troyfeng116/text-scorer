@@ -1,23 +1,23 @@
 import { defaultBadSamples, defaultGoodSamples, DEFAULT_CHARS_TO_INCLUDE } from '../utils/constants'
-import { getCharCodeMap } from '../utils/helpers'
-import { createEmptyBigramMatrix, getBigramCutoffScores, runTextThroughBigramMatrix, trainBigramMatrix } from './bigramHelpers'
 import { frankensteinTrainingText } from '../data/nlp-frankenstein'
 import { CutoffScore, CutoffScoreStrictness } from '..'
+import { getCharCodeMap } from '../utils/helpers'
+import { createEmptyTrigramMatrix, getTrigramCutoffScores, runTextThroughTrigramMatrix, trainTrigramMatrix } from './trigramHelpers'
 
-export interface BigramMatrixRow {
-    countRow: number[]
-    rowTotal: number
+export interface TrigramMatrixLayer {
+    countLayer: number[][]
+    layerTotal: number
 }
 
-interface BigramMatrixConstructorOptions {
+interface TrigramMatrixConstructorOptions {
     initialTrainingText?: string
     goodSamples?: string[]
     badSamples?: string[]
     additionalCharsToInclude?: string
 }
 
-interface BigramMatrixInterface {
-    bigramMatrix: BigramMatrixRow[]
+interface TrigramMatrixInterface {
+    trigramMatrix: TrigramMatrixLayer[]
     cutoffScores: CutoffScore
 
     train: (text: string) => void
@@ -26,32 +26,32 @@ interface BigramMatrixInterface {
     isGibberish: (text: string, strictness?: CutoffScoreStrictness) => boolean
 }
 
-export class BigramMatrix implements BigramMatrixInterface {
+export class TrigramMatrix implements TrigramMatrixInterface {
     alphaSize: number
-    bigramMatrix: BigramMatrixRow[]
+    trigramMatrix: TrigramMatrixLayer[]
     cutoffScores: CutoffScore
     charCodeMap: { [key: number]: number }
 
-    constructor(options: BigramMatrixConstructorOptions = {}) {
+    constructor(options: TrigramMatrixConstructorOptions = {}) {
         const { initialTrainingText = frankensteinTrainingText, goodSamples = defaultGoodSamples, badSamples = defaultBadSamples, additionalCharsToInclude = '' } = options
         const { charCodeMap, uniqueChars } = getCharCodeMap(DEFAULT_CHARS_TO_INCLUDE + additionalCharsToInclude)
         this.charCodeMap = charCodeMap
         this.alphaSize = uniqueChars
-        this.bigramMatrix = createEmptyBigramMatrix(uniqueChars)
+        this.trigramMatrix = createEmptyTrigramMatrix(uniqueChars)
         this.train(initialTrainingText)
-        this.cutoffScores = getBigramCutoffScores(this.bigramMatrix, goodSamples, badSamples, charCodeMap)
+        this.cutoffScores = getTrigramCutoffScores(this.trigramMatrix, goodSamples, badSamples, charCodeMap)
     }
 
     train = (trainingText: string): void => {
-        trainBigramMatrix(this.bigramMatrix, trainingText, this.charCodeMap)
+        trainTrigramMatrix(this.trigramMatrix, trainingText, this.charCodeMap)
     }
 
     getScore = (textToScore: string): number => {
-        return runTextThroughBigramMatrix(this.bigramMatrix, textToScore, this.charCodeMap)
+        return runTextThroughTrigramMatrix(this.trigramMatrix, textToScore, this.charCodeMap)
     }
 
     recalibrateCutoffScores = (goodSamples = defaultGoodSamples, badSamples = defaultBadSamples): void => {
-        this.cutoffScores = getBigramCutoffScores(this.bigramMatrix, goodSamples, badSamples, this.charCodeMap)
+        this.cutoffScores = getTrigramCutoffScores(this.trigramMatrix, goodSamples, badSamples, this.charCodeMap)
     }
 
     isGibberish = (text: string, strictness = CutoffScoreStrictness.Avg): boolean => {

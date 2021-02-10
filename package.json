@@ -7,7 +7,7 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "build": "rm -rf lib && tsc",
-        "sandbox": "tsc src/sandbox.ts --outDir lib; node lib/sandbox.js"
+        "sandbox": "tsc src/sandbox.ts --outDir lib && node lib/sandbox.js"
     },
     "repository": {
         "type": "git",
