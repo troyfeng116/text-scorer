@@ -8,5 +8,5 @@
         "allowJs": false
     },
     "include": ["index.ts", "src"],
-    "exclude": ["node_modules", "lib"]
+    "exclude": ["node_modules", "lib", "src/sandbox.ts"]
 }
