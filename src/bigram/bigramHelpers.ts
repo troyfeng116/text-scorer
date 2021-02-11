@@ -7,7 +7,10 @@ export const createEmptyBigramMatrix = (n: number): BigramMatrixRow[] => {
     const matrix: BigramMatrixRow[] = new Array(n)
     for (let i = 0; i < n; i++) {
         // Laplace smooth
-        matrix[i] = { countRow: new Array<number>(n).fill(1), rowTotal: n }
+        matrix[i] = { countRow: new Array<number>(n), rowTotal: n }
+        for (let j = 0; j < n; j++) {
+            matrix[i].countRow[j] = 1
+        }
     }
     return matrix
 }

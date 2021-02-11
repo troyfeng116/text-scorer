@@ -1,3 +1,8 @@
+import { CutoffScore } from '..'
+import { BigramMatrixRow } from '../bigram/BigramMatrix'
+import { TrigramMatrixLayer } from '../trigram/TrigramMatrix'
+import { DEFAULT_BIGRAM_MATRIX_JSON, DEFAULT_TRIGRAM_MATRIX_JSON } from './constants'
+
 export const cleanTrainingText = (text: string, charsToInclude: string, ignoreCase: boolean): string => {
     if (ignoreCase) return text.toLowerCase().replace(new RegExp(`[^${charsToInclude}]`, 'gi'), '')
     return text.replace(new RegExp(`[^${charsToInclude}]`, 'gi'), '')
@@ -21,4 +26,18 @@ export const getCharCodeMap = (charsToIncludeStr: string): { charCodeMap: { [key
         noDuplicateCharsStr += String.fromCharCode(c)
     }
     return { charCodeMap: charCodeMap, uniqueChars: index, noDuplicateCharsStr: noDuplicateCharsStr }
+}
+
+export const getDefaultBigramMatrixFromJSON = (): {
+    bigramMatrix: BigramMatrixRow[]
+    cutoffScores: CutoffScore
+} => {
+    return JSON.parse(DEFAULT_BIGRAM_MATRIX_JSON)
+}
+
+export const getDefaultTrigramMatrixFromJSON = (): {
+    trigramMatrix: TrigramMatrixLayer[]
+    cutoffScores: CutoffScore
+} => {
+    return JSON.parse(DEFAULT_TRIGRAM_MATRIX_JSON)
 }

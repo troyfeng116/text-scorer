@@ -9,7 +9,10 @@ export const createEmptyTrigramMatrix = (n: number): TrigramMatrixLayer[] => {
         // Laplace smooth
         matrix[i] = { countLayer: new Array<Array<number>>(n), layerTotal: n * n }
         for (let j = 0; j < n; j++) {
-            matrix[i].countLayer[j] = new Array(n).fill(1)
+            matrix[i].countLayer[j] = new Array<number>(n)
+            for (let k = 0; k < n; k++) {
+                matrix[i].countLayer[j][k] = 1
+            }
         }
     }
     return matrix

@@ -1,9 +1,9 @@
 import { DEFAULT_BAD_SAMPLES, DEFAULT_GOOD_SAMPLES, DEFAULT_CHARS_TO_INCLUDE, UPPERCASE_CHARS } from '../utils/constants'
-import { getCharCodeMap } from '../utils/helpers'
+import { getCharCodeMap, getDefaultBigramMatrixFromJSON } from '../utils/helpers'
 import { createEmptyBigramMatrix, getBigramCutoffScores, runTextThroughBigramMatrix, trainBigramMatrix } from './bigramHelpers'
 import { CutoffScore, CutoffScoreStrictness, NGramMatrix, NGramMatrixOptions } from '..'
 import { HARRY_POTTER_TRAINING_TEXT } from '../data/harry-potter-1'
-import { DEFAULT_ALPHA_SIZE, DEFAULT_BIGRAM_MATRIX, DEFAULT_CHAR_CODE_MAP } from '../utils/constants'
+import { DEFAULT_ALPHA_SIZE, DEFAULT_CHAR_CODE_MAP } from '../utils/constants'
 
 export interface BigramMatrixRow {
     countRow: number[]
@@ -26,7 +26,7 @@ export class BigramMatrix implements BigramMatrixInterface {
 
     constructor(options?: NGramMatrixOptions) {
         if (!options) {
-            const { bigramMatrix, cutoffScores } = DEFAULT_BIGRAM_MATRIX
+            const { bigramMatrix, cutoffScores } = getDefaultBigramMatrixFromJSON()
             this.alphaSize = DEFAULT_ALPHA_SIZE
             this.bigramMatrix = bigramMatrix
             this.cutoffScores = cutoffScores
