@@ -26,6 +26,7 @@ export interface NGramMatrixOptions {
     initialTrainingText?: string
     goodSamples?: string[]
     badSamples?: string[]
+    ignoreCase?: boolean
     additionalCharsToInclude?: string
 }
 

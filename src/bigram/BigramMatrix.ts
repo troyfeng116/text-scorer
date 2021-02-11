@@ -1,4 +1,4 @@
-import { DEFAULT_BAD_SAMPLES, DEFAULT_GOOD_SAMPLES, DEFAULT_CHARS_TO_INCLUDE } from '../utils/constants'
+import { DEFAULT_BAD_SAMPLES, DEFAULT_GOOD_SAMPLES, DEFAULT_CHARS_TO_INCLUDE, UPPERCASE_CHARS } from '../utils/constants'
 import { getCharCodeMap } from '../utils/helpers'
 import { createEmptyBigramMatrix, getBigramCutoffScores, runTextThroughBigramMatrix, trainBigramMatrix } from './bigramHelpers'
 import { CutoffScore, CutoffScoreStrictness, NGramMatrix, NGramMatrixOptions } from '..'
@@ -16,9 +16,13 @@ interface BigramMatrixInterface extends NGramMatrix {
 
 export class BigramMatrix implements BigramMatrixInterface {
     alphaSize: number
+    charsToInclude: string
     bigramMatrix: BigramMatrixRow[]
     cutoffScores: CutoffScore
     charCodeMap: { [key: number]: number }
+    savedGoodSamples: string[]
+    savedBadSamples: string[]
+    ignoreCase: boolean
 
     constructor(options?: NGramMatrixOptions) {
         if (!options) {
@@ -27,27 +31,35 @@ export class BigramMatrix implements BigramMatrixInterface {
             this.bigramMatrix = bigramMatrix
             this.cutoffScores = cutoffScores
             this.charCodeMap = DEFAULT_CHAR_CODE_MAP
+            this.savedGoodSamples = DEFAULT_GOOD_SAMPLES
+            this.savedBadSamples = DEFAULT_BAD_SAMPLES
+            this.ignoreCase = true
+            this.charsToInclude = DEFAULT_CHARS_TO_INCLUDE
             return
         }
-        const { initialTrainingText = HARRY_POTTER_TRAINING_TEXT, goodSamples = DEFAULT_GOOD_SAMPLES, badSamples = DEFAULT_BAD_SAMPLES, additionalCharsToInclude = '' } = options
-        const { charCodeMap, uniqueChars } = getCharCodeMap(DEFAULT_CHARS_TO_INCLUDE + additionalCharsToInclude)
+        const { initialTrainingText = HARRY_POTTER_TRAINING_TEXT, goodSamples = DEFAULT_GOOD_SAMPLES, badSamples = DEFAULT_BAD_SAMPLES, ignoreCase = true, additionalCharsToInclude = '' } = options
+        const { charCodeMap, uniqueChars, noDuplicateCharsStr } = getCharCodeMap(DEFAULT_CHARS_TO_INCLUDE + additionalCharsToInclude + (!ignoreCase ? UPPERCASE_CHARS : ''))
         this.charCodeMap = charCodeMap
         this.alphaSize = uniqueChars
+        this.charsToInclude = noDuplicateCharsStr
         this.bigramMatrix = createEmptyBigramMatrix(uniqueChars)
         this.train(initialTrainingText)
-        this.cutoffScores = getBigramCutoffScores(this.bigramMatrix, goodSamples, badSamples, charCodeMap)
+        this.cutoffScores = getBigramCutoffScores(this.bigramMatrix, goodSamples, badSamples, charCodeMap, ignoreCase)
+        this.savedGoodSamples = goodSamples
+        this.savedBadSamples = badSamples
+        this.ignoreCase = ignoreCase
     }
 
     train = (trainingText: string): void => {
-        trainBigramMatrix(this.bigramMatrix, trainingText, this.charCodeMap)
+        trainBigramMatrix(this.bigramMatrix, trainingText, this.charCodeMap, this.charsToInclude, this.ignoreCase)
     }
 
     getScore = (textToScore: string): number => {
-        return runTextThroughBigramMatrix(this.bigramMatrix, textToScore, this.charCodeMap)
+        return runTextThroughBigramMatrix(this.bigramMatrix, textToScore, this.charCodeMap, this.ignoreCase)
     }
 
     recalibrateCutoffScores = (goodSamples = DEFAULT_GOOD_SAMPLES, badSamples = DEFAULT_BAD_SAMPLES): void => {
-        this.cutoffScores = getBigramCutoffScores(this.bigramMatrix, goodSamples, badSamples, this.charCodeMap)
+        this.cutoffScores = getBigramCutoffScores(this.bigramMatrix, goodSamples, badSamples, this.charCodeMap, this.ignoreCase)
     }
 
     isGibberish = (text: string, strictness = CutoffScoreStrictness.Avg): boolean => {

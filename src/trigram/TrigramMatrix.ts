@@ -1,4 +1,4 @@
-import { DEFAULT_BAD_SAMPLES, DEFAULT_GOOD_SAMPLES, DEFAULT_CHARS_TO_INCLUDE } from '../utils/constants'
+import { DEFAULT_BAD_SAMPLES, DEFAULT_GOOD_SAMPLES, DEFAULT_CHARS_TO_INCLUDE, UPPERCASE_CHARS } from '../utils/constants'
 import { CutoffScore, CutoffScoreStrictness, NGramMatrix, NGramMatrixOptions } from '..'
 import { getCharCodeMap } from '../utils/helpers'
 import { createEmptyTrigramMatrix, getTrigramCutoffScores, runTextThroughTrigramMatrix, trainTrigramMatrix } from './trigramHelpers'
@@ -16,9 +16,13 @@ interface TrigramMatrixInterface extends NGramMatrix {
 
 export class TrigramMatrix implements TrigramMatrixInterface {
     alphaSize: number
+    charsToInclude: string
     trigramMatrix: TrigramMatrixLayer[]
     cutoffScores: CutoffScore
     charCodeMap: { [key: number]: number }
+    savedGoodSamples: string[]
+    savedBadSamples: string[]
+    ignoreCase: boolean
 
     constructor(options?: NGramMatrixOptions) {
         if (!options) {
@@ -27,27 +31,35 @@ export class TrigramMatrix implements TrigramMatrixInterface {
             this.trigramMatrix = trigramMatrix
             this.cutoffScores = cutoffScores
             this.charCodeMap = DEFAULT_CHAR_CODE_MAP
+            this.savedGoodSamples = DEFAULT_GOOD_SAMPLES
+            this.savedBadSamples = DEFAULT_BAD_SAMPLES
+            this.ignoreCase = true
+            this.charsToInclude = DEFAULT_CHARS_TO_INCLUDE
             return
         }
-        const { initialTrainingText = HARRY_POTTER_TRAINING_TEXT, goodSamples = DEFAULT_GOOD_SAMPLES, badSamples = DEFAULT_BAD_SAMPLES, additionalCharsToInclude = '' } = options
-        const { charCodeMap, uniqueChars } = getCharCodeMap(DEFAULT_CHARS_TO_INCLUDE + additionalCharsToInclude)
+        const { initialTrainingText = HARRY_POTTER_TRAINING_TEXT, goodSamples = DEFAULT_GOOD_SAMPLES, badSamples = DEFAULT_BAD_SAMPLES, ignoreCase = true, additionalCharsToInclude = '' } = options
+        const { charCodeMap, uniqueChars, noDuplicateCharsStr } = getCharCodeMap(DEFAULT_CHARS_TO_INCLUDE + additionalCharsToInclude + (!ignoreCase ? UPPERCASE_CHARS : ''))
         this.charCodeMap = charCodeMap
         this.alphaSize = uniqueChars
+        this.charsToInclude = noDuplicateCharsStr
         this.trigramMatrix = createEmptyTrigramMatrix(uniqueChars)
         this.train(initialTrainingText)
-        this.cutoffScores = getTrigramCutoffScores(this.trigramMatrix, goodSamples, badSamples, charCodeMap)
+        this.cutoffScores = getTrigramCutoffScores(this.trigramMatrix, goodSamples, badSamples, charCodeMap, ignoreCase)
+        this.savedGoodSamples = goodSamples
+        this.savedBadSamples = badSamples
+        this.ignoreCase = ignoreCase
     }
 
     train = (trainingText: string): void => {
-        trainTrigramMatrix(this.trigramMatrix, trainingText, this.charCodeMap)
+        trainTrigramMatrix(this.trigramMatrix, trainingText, this.charCodeMap, this.charsToInclude, this.ignoreCase)
     }
 
     getScore = (textToScore: string): number => {
-        return runTextThroughTrigramMatrix(this.trigramMatrix, textToScore, this.charCodeMap)
+        return runTextThroughTrigramMatrix(this.trigramMatrix, textToScore, this.charCodeMap, this.ignoreCase)
     }
 
     recalibrateCutoffScores = (goodSamples = DEFAULT_GOOD_SAMPLES, badSamples = DEFAULT_BAD_SAMPLES): void => {
-        this.cutoffScores = getTrigramCutoffScores(this.trigramMatrix, goodSamples, badSamples, this.charCodeMap)
+        this.cutoffScores = getTrigramCutoffScores(this.trigramMatrix, goodSamples, badSamples, this.charCodeMap, this.ignoreCase)
     }
 
     isGibberish = (text: string, strictness = CutoffScoreStrictness.Avg): boolean => {
