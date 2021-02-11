@@ -40,7 +40,7 @@ interface GibberishScorerInterface {
 export class GibberishScorer implements GibberishScorerInterface {
     NGramMatrix: NGramMatrix
 
-    constructor(useBigram = true, options: NGramMatrixOptions = {}) {
+    constructor(useBigram = true, options?: NGramMatrixOptions) {
         this.NGramMatrix = useBigram ? new BigramMatrix(options) : new TrigramMatrix(options)
     }
 
