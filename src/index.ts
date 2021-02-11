@@ -32,12 +32,12 @@ export interface NGramMatrixOptions {
 
 interface GibberishScorerInterface {
     NGramMatrix: NGramMatrix
-    train: (text: string) => void
-    recalibrateCutoffs: (goodSamples: string[], badSamples: string[]) => void
+    trainWithEnglishText: (text: string) => void
+    recalibrateScoreCutoffs: (goodSamples: string[], badSamples: string[]) => void
     isGibberish: (text: string, strictness?: CutoffScoreStrictness) => boolean
-    getScore: (text: string) => number
-    getCutoffs: () => CutoffScore
-    getScoreAndCutoffs: (text: string) => { cutoffs: CutoffScore; score: number }
+    getTextScore: (text: string) => number
+    getScoreCutoffs: () => CutoffScore
+    getTextScoreAndCutoffs: (text: string) => { cutoffs: CutoffScore; score: number }
 }
 
 export class GibberishScorer implements GibberishScorerInterface {
@@ -47,17 +47,17 @@ export class GibberishScorer implements GibberishScorerInterface {
         this.NGramMatrix = useBigram ? new BigramMatrix(options) : new TrigramMatrix(options)
     }
 
-    train = (text: string): void => this.NGramMatrix.train(text)
+    trainWithEnglishText = (text: string): void => this.NGramMatrix.train(text)
 
-    recalibrateCutoffs = (goodSamples: string[], badSamples: string[]): void => this.NGramMatrix.recalibrateCutoffScores(goodSamples, badSamples)
+    recalibrateScoreCutoffs = (goodSamples: string[], badSamples: string[]): void => this.NGramMatrix.recalibrateCutoffScores(goodSamples, badSamples)
 
     isGibberish = (text: string, strictness = CutoffScoreStrictness.Avg): boolean => this.NGramMatrix.isGibberish(text, strictness)
 
-    getScore = (text: string): number => this.NGramMatrix.getScore(text)
+    getTextScore = (text: string): number => this.NGramMatrix.getScore(text)
 
-    getCutoffs = (): CutoffScore => this.NGramMatrix.cutoffScores
+    getScoreCutoffs = (): CutoffScore => this.NGramMatrix.cutoffScores
 
-    getScoreAndCutoffs = (text: string): { cutoffs: CutoffScore; score: number } => {
+    getTextScoreAndCutoffs = (text: string): { cutoffs: CutoffScore; score: number } => {
         const { cutoffScores } = this.NGramMatrix
         const matrixScore = this.NGramMatrix.getScore(text)
         return { cutoffs: cutoffScores, score: matrixScore }

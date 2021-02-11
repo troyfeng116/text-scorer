@@ -80,7 +80,9 @@ interface GibberishScorerInterface {
     train: (text: string) => void
     recalibrateCutoffs: (goodSamples: string[], badSamples: string[]) => void
     isGibberish: (text: string, strictness?: CutoffScoreStrictness) => boolean
-    getScoreInfo: (text: string) => { cutoffs: CutoffScore; score: number }
+    getScore: (text: string) => number
+    getCutoffs: () => CutoffScore
+    getScoreAndCutoffs: (text: string) => { cutoffs: CutoffScore; score: number }
 }
 
 class GibberishScorer implements GibberishScorerInterface {}
