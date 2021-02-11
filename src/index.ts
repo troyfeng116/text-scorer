@@ -35,7 +35,9 @@ interface GibberishScorerInterface {
     train: (text: string) => void
     recalibrateCutoffs: (goodSamples: string[], badSamples: string[]) => void
     isGibberish: (text: string, strictness?: CutoffScoreStrictness) => boolean
-    getScoreInfo: (text: string) => { cutoffs: CutoffScore; score: number }
+    getScore: (text: string) => number
+    getCutoffs: () => CutoffScore
+    getScoreAndCutoffs: (text: string) => { cutoffs: CutoffScore; score: number }
 }
 
 export class GibberishScorer implements GibberishScorerInterface {
@@ -51,7 +53,11 @@ export class GibberishScorer implements GibberishScorerInterface {
 
     isGibberish = (text: string, strictness = CutoffScoreStrictness.Avg): boolean => this.NGramMatrix.isGibberish(text, strictness)
 
-    getScoreInfo = (text: string): { cutoffs: CutoffScore; score: number } => {
+    getScore = (text: string): number => this.NGramMatrix.getScore(text)
+
+    getCutoffs = (): CutoffScore => this.NGramMatrix.cutoffScores
+
+    getScoreAndCutoffs = (text: string): { cutoffs: CutoffScore; score: number } => {
         const { cutoffScores } = this.NGramMatrix
         const matrixScore = this.NGramMatrix.getScore(text)
         return { cutoffs: cutoffScores, score: matrixScore }
