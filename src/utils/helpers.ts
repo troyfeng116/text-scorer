@@ -1,9 +1,11 @@
-// To do: clean training text based on allowed chars
-export const cleanTrainingText = (text: string): string => {
-    return text.toLowerCase().replace(/\.|\?|\!|\,|\&/gi, '')
+import { DEFAULT_CHARS_TO_INCLUDE } from './constants'
+
+// To do: add ignoreCase
+export const cleanTrainingText = (text: string, allowedChars = DEFAULT_CHARS_TO_INCLUDE): string => {
+    return text.toLowerCase().replace(new RegExp(`[^${allowedChars}]`, 'gi'), '')
 }
 
-// To do: clean text based on allowed chars?
+// To do: add ignoreCase
 export const cleanTextToScore = (text: string): string => {
     return text.toLowerCase().replace(/\s{2,}/gi, ' ')
 }

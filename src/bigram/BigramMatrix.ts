@@ -2,7 +2,7 @@ import { DEFAULT_BAD_SAMPLES, DEFAULT_GOOD_SAMPLES, DEFAULT_CHARS_TO_INCLUDE } f
 import { getCharCodeMap } from '../utils/helpers'
 import { createEmptyBigramMatrix, getBigramCutoffScores, runTextThroughBigramMatrix, trainBigramMatrix } from './bigramHelpers'
 import { CutoffScore, CutoffScoreStrictness, NGramMatrix, NGramMatrixOptions } from '..'
-import { harryPotterTrainingText } from '../data/harry-potter-1'
+import { HARRY_POTTER_TRAINING_TEXT } from '../data/harry-potter-1'
 import { DEFAULT_ALPHA_SIZE, DEFAULT_BIGRAM_MATRIX, DEFAULT_CHAR_CODE_MAP } from '../utils/constants'
 
 export interface BigramMatrixRow {
@@ -29,7 +29,7 @@ export class BigramMatrix implements BigramMatrixInterface {
             this.charCodeMap = DEFAULT_CHAR_CODE_MAP
             return
         }
-        const { initialTrainingText = harryPotterTrainingText, goodSamples = DEFAULT_GOOD_SAMPLES, badSamples = DEFAULT_BAD_SAMPLES, additionalCharsToInclude = '' } = options
+        const { initialTrainingText = HARRY_POTTER_TRAINING_TEXT, goodSamples = DEFAULT_GOOD_SAMPLES, badSamples = DEFAULT_BAD_SAMPLES, additionalCharsToInclude = '' } = options
         const { charCodeMap, uniqueChars } = getCharCodeMap(DEFAULT_CHARS_TO_INCLUDE + additionalCharsToInclude)
         this.charCodeMap = charCodeMap
         this.alphaSize = uniqueChars
