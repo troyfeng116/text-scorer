@@ -52,6 +52,7 @@ export class TrigramMatrix implements TrigramMatrixInterface {
 
     train = (trainingText: string): void => {
         trainTrigramMatrix(this.trigramMatrix, trainingText, this.charCodeMap, this.charsToInclude, this.ignoreCase)
+        this.recalibrateCutoffScores(this.savedGoodSamples, this.savedBadSamples)
     }
 
     getScore = (textToScore: string): number => {

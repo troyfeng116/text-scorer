@@ -52,6 +52,7 @@ export class BigramMatrix implements BigramMatrixInterface {
 
     train = (trainingText: string): void => {
         trainBigramMatrix(this.bigramMatrix, trainingText, this.charCodeMap, this.charsToInclude, this.ignoreCase)
+        this.recalibrateCutoffScores(this.savedGoodSamples, this.savedBadSamples)
     }
 
     getScore = (textToScore: string): number => {
