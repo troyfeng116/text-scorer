@@ -33,10 +33,10 @@ export interface NGramMatrixOptions {
 interface GibberishScorerInterface {
     NGramMatrix: NGramMatrix
     trainWithEnglishText: (text: string) => void
-    recalibrateScoreCutoffs: (goodSamples: string[], badSamples: string[]) => void
+    recalibrateCutoffScores: (goodSamples: string[], badSamples: string[]) => void
     isGibberish: (text: string, strictness?: CutoffScoreStrictness) => boolean
     getTextScore: (text: string) => number
-    getScoreCutoffs: () => CutoffScore
+    getCutoffScores: () => CutoffScore
     getTextScoreAndCutoffs: (text: string) => { cutoffs: CutoffScore; score: number }
 }
 
@@ -49,13 +49,13 @@ export class GibberishScorer implements GibberishScorerInterface {
 
     trainWithEnglishText = (text: string): void => this.NGramMatrix.train(text)
 
-    recalibrateScoreCutoffs = (goodSamples: string[], badSamples: string[]): void => this.NGramMatrix.recalibrateCutoffScores(goodSamples, badSamples)
+    recalibrateCutoffScores = (goodSamples: string[], badSamples: string[]): void => this.NGramMatrix.recalibrateCutoffScores(goodSamples, badSamples)
 
     isGibberish = (text: string, strictness = CutoffScoreStrictness.Avg): boolean => this.NGramMatrix.isGibberish(text, strictness)
 
     getTextScore = (text: string): number => this.NGramMatrix.getScore(text)
 
-    getScoreCutoffs = (): CutoffScore => this.NGramMatrix.cutoffScores
+    getCutoffScores = (): CutoffScore => this.NGramMatrix.cutoffScores
 
     getTextScoreAndCutoffs = (text: string): { cutoffs: CutoffScore; score: number } => {
         const { cutoffScores } = this.NGramMatrix
