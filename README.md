@@ -1,15 +1,15 @@
-# gibberish-scorer (v1.1.0)
+# text-scorer (v2.0.0)
 
-A configurable gibberish scorer/detector.
+A configurable text scorer/gibberish detector.
 
 ## Installation
 
 ```bash
-npm install gibberish-scorer
+npm install text-scorer
 ```
 
 ## Description and Use Cases
-This gibberish scoring model implements a matrix that tracks the probabilities of character bigram and trigram transitions, i.e. a Markov chain where the event chains consist of character bigrams and trigrams and the transition probabilities correspond to approximate relative frequencies of each chain within the English language. The model consists of three major parts:
+This text scoring model implements a matrix that tracks the probabilities of character bigram and trigram transitions, i.e. a Markov chain where the event chains consist of character bigrams and trigrams and the transition probabilities correspond to approximate relative frequencies of each chain within the English language. The model consists of three major parts:
 1. English language training. A large corpus (for example, the default training text is a Harry Potter novel) is passed to the model to learn the relative frequencies of all character N-grams. For example, the model will learn through training that the `t-h` bigram is much more likely to occur than the `q-g` bigram.
 2. Cutoff training. A sample of good and bad inputs is passed to the model so that it can calculate predictions for what the cutoff point between gibberish and non-gibberish will be.
 3. Input/output. Inputs passed to the trained model will be evaluated and assigned a score (the average of all character N-gram probabilities in the input). That score is compared against the model's cutoff predictions to come up with the final predictions.
