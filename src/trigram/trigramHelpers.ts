@@ -9,15 +9,18 @@ export const createEmptyTrigramMatrix = (n: number): TrigramMatrixLayer[] => {
         // Laplace smooth
         matrix[i] = { countLayer: new Array<Array<number>>(n), layerTotal: n * n }
         for (let j = 0; j < n; j++) {
-            matrix[i].countLayer[j] = new Array(n).fill(1)
+            matrix[i].countLayer[j] = new Array<number>(n)
+            for (let k = 0; k < n; k++) {
+                matrix[i].countLayer[j][k] = 1
+            }
         }
     }
     return matrix
 }
 
 // Process character trigrams in text, store counts of each trigram in trigramMatrix
-export const trainTrigramMatrix = (trigramMatrix: TrigramMatrixLayer[], text: string, charCodeMap: { [key: number]: number }): void => {
-    const cleanText = cleanTrainingText(text)
+export const trainTrigramMatrix = (trigramMatrix: TrigramMatrixLayer[], text: string, charCodeMap: { [key: number]: number }, charsToInclude: string, ignoreCase: boolean): void => {
+    const cleanText = cleanTrainingText(text, charsToInclude, ignoreCase)
     for (let i = 0; i < cleanText.length - 2; i++) {
         const u = charCodeMap[cleanText.charCodeAt(i)]
         const v = charCodeMap[cleanText.charCodeAt(i + 1)]
@@ -31,8 +34,8 @@ export const trainTrigramMatrix = (trigramMatrix: TrigramMatrixLayer[], text: st
 
 // Process character trigrams in text, run trigrams through trigramMatrix and calculate average probability to normalize by length.
 // Log probabilities to prevent underflow
-export const runTextThroughTrigramMatrix = (trigramMatrix: TrigramMatrixLayer[], text: string, charCodeMap: { [key: number]: number }): number => {
-    const cleanText = cleanTextToScore(text)
+export const runTextThroughTrigramMatrix = (trigramMatrix: TrigramMatrixLayer[], text: string, charCodeMap: { [key: number]: number }, ignoreCase: boolean): number => {
+    const cleanText = cleanTextToScore(text, ignoreCase)
     let numerator = 0,
         denominator = 0
     for (let i = 0; i < cleanText.length - 2; i++) {
@@ -48,13 +51,12 @@ export const runTextThroughTrigramMatrix = (trigramMatrix: TrigramMatrixLayer[],
 }
 
 // Calculate predicted expected cutoff scores (three levels of strictness)
-export const getTrigramCutoffScores = (trigramMatrix: TrigramMatrixLayer[], goodText: string[], badText: string[], charCodeMap: { [key: number]: number }): CutoffScore => {
-    const goodScores = goodText.map((good) => runTextThroughTrigramMatrix(trigramMatrix, good, charCodeMap))
-    const badScores = badText.map((bad) => runTextThroughTrigramMatrix(trigramMatrix, bad, charCodeMap))
+export const getTrigramCutoffScores = (trigramMatrix: TrigramMatrixLayer[], goodText: string[], badText: string[], charCodeMap: { [key: number]: number }, ignoreCase: boolean): CutoffScore => {
+    const goodScores = goodText.map((good) => runTextThroughTrigramMatrix(trigramMatrix, good, charCodeMap, ignoreCase))
+    const badScores = badText.map((bad) => runTextThroughTrigramMatrix(trigramMatrix, bad, charCodeMap, ignoreCase))
     let minGoodScore = Number.POSITIVE_INFINITY
     for (const goodScore of goodScores) minGoodScore = Math.min(minGoodScore, goodScore)
     let maxBadScore = 0
     for (const badScore of badScores) maxBadScore = Math.max(maxBadScore, badScore)
-    console.log(goodScores, badScores)
     return { loose: Math.min(minGoodScore, maxBadScore), avg: (minGoodScore + maxBadScore) / 2, strict: Math.max(minGoodScore, maxBadScore) }
 }

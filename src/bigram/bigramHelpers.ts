@@ -7,15 +7,17 @@ export const createEmptyBigramMatrix = (n: number): BigramMatrixRow[] => {
     const matrix: BigramMatrixRow[] = new Array(n)
     for (let i = 0; i < n; i++) {
         // Laplace smooth
-        matrix[i] = { countRow: new Array<number>(n).fill(1), rowTotal: n }
+        matrix[i] = { countRow: new Array<number>(n), rowTotal: n }
+        for (let j = 0; j < n; j++) {
+            matrix[i].countRow[j] = 1
+        }
     }
     return matrix
 }
 
 // Process character bigrams in text, store counts of each bigram in bigramMatrix
-export const trainBigramMatrix = (bigramMatrix: BigramMatrixRow[], text: string, charCodeMap: { [key: number]: number }): void => {
-    const cleanText = cleanTrainingText(text)
-    console.log('TRAINED ON LENGTH: ' + cleanText.length)
+export const trainBigramMatrix = (bigramMatrix: BigramMatrixRow[], text: string, charCodeMap: { [key: number]: number }, charsToInclude: string, ignoreCase: boolean): void => {
+    const cleanText = cleanTrainingText(text, charsToInclude, ignoreCase)
     for (let i = 0; i < cleanText.length - 1; i++) {
         const u = charCodeMap[cleanText.charCodeAt(i)]
         const v = charCodeMap[cleanText.charCodeAt(i + 1)]
@@ -28,8 +30,8 @@ export const trainBigramMatrix = (bigramMatrix: BigramMatrixRow[], text: string,
 
 // Process character bigrams in text, run bigrams through bigramMatrix and calculate average probability to normalize by length.
 // Log probabilities to prevent underflow
-export const runTextThroughBigramMatrix = (bigramMatrix: BigramMatrixRow[], text: string, charCodeMap: { [key: number]: number }): number => {
-    const cleanText = cleanTextToScore(text)
+export const runTextThroughBigramMatrix = (bigramMatrix: BigramMatrixRow[], text: string, charCodeMap: { [key: number]: number }, ignoreCase: boolean): number => {
+    const cleanText = cleanTextToScore(text, ignoreCase)
     let numerator = 0,
         denominator = 0
     for (let i = 0; i < cleanText.length - 1; i++) {
@@ -44,13 +46,12 @@ export const runTextThroughBigramMatrix = (bigramMatrix: BigramMatrixRow[], text
 }
 
 // Calculate predicted expected cutoff scores (three levels of strictness)
-export const getBigramCutoffScores = (bigramMatrix: BigramMatrixRow[], goodText: string[], badText: string[], charCodeMap: { [key: number]: number }): CutoffScore => {
-    const goodScores = goodText.map((good) => runTextThroughBigramMatrix(bigramMatrix, good, charCodeMap))
-    const badScores = badText.map((bad) => runTextThroughBigramMatrix(bigramMatrix, bad, charCodeMap))
+export const getBigramCutoffScores = (bigramMatrix: BigramMatrixRow[], goodText: string[], badText: string[], charCodeMap: { [key: number]: number }, ignoreCase: boolean): CutoffScore => {
+    const goodScores = goodText.map((good) => runTextThroughBigramMatrix(bigramMatrix, good, charCodeMap, ignoreCase))
+    const badScores = badText.map((bad) => runTextThroughBigramMatrix(bigramMatrix, bad, charCodeMap, ignoreCase))
     let minGoodScore = Number.POSITIVE_INFINITY
     for (const goodScore of goodScores) minGoodScore = Math.min(minGoodScore, goodScore)
     let maxBadScore = 0
     for (const badScore of badScores) maxBadScore = Math.max(maxBadScore, badScore)
-    console.log(goodScores, badScores)
     return { loose: Math.min(minGoodScore, maxBadScore), avg: (minGoodScore + maxBadScore) / 2, strict: Math.max(minGoodScore, maxBadScore) }
 }
