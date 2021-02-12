@@ -24,14 +24,14 @@ Sample use cases:
 
 ### Import module
 ```js
-import { GibberishScorer } from 'gibberish-scorer'
-import { CutoffScoreStrictness, NGramMatrix } from 'gibberish-scorer' // Additional type imports
+import { TextScorer } from 'text-scorer'
+import { CutoffScoreStrictness, NGramMatrix } from 'text-scorer' // Additional type imports
 ```
 
 
 ### Constructor
 ```ts
-const gibberishScorer = new GibberishScorer(useBigram?: boolean, options?: {
+const textScorer = new TextScorer(useBigram?: boolean, options?: {
     initialTrainingText?: string
     goodSamples?: string[]
     badSamples?: string[]
@@ -39,7 +39,7 @@ const gibberishScorer = new GibberishScorer(useBigram?: boolean, options?: {
     additionalCharsToInclude?: string
 })
 ```
-Instantiates new `GibberishScorer` object. Constructor takes optional arguments `useBigram` (defaults to `true`, which prefers bigrams over trigrams) and `options`:
+Instantiates new `TextScorer` object. Constructor takes optional arguments `useBigram` (defaults to `true`, which prefers bigrams over trigrams) and `options`:
 
 | `options` field | type | purpose/description | default value |
 | :--- | :--- | :--- | :--- |
@@ -52,40 +52,40 @@ Instantiates new `GibberishScorer` object. Constructor takes optional arguments 
 
 ### `isGibberish`
 ```js
-gibberishScorer.isGibberish('The quick fox jumps over the lazy dog') // false
-gibberishScorer.isGibberish('Tom Brady') // false
-gibberishScorer.isGibberish('oqbwifsiehf osdfbw sjkdoo thehwei') // true
-gibberishScorer.isGibberish('This sentence is half gibberish lwpqgtyukcvi', CutoffScoreStrictness.Loose) // false
-gibberishScorer.isGibberish('This sentence is half gibberish lwpqgtyukcvi', CutoffScoreStrictness.Strict) // true
+textScorer.isGibberish('The quick fox jumps over the lazy dog') // false
+textScorer.isGibberish('Tom Brady') // false
+textScorer.isGibberish('oqbwifsiehf osdfbw sjkdoo thehwei') // true
+textScorer.isGibberish('This sentence is half gibberish lwpqgtyukcvi', CutoffScoreStrictness.Loose) // false
+textScorer.isGibberish('This sentence is half gibberish lwpqgtyukcvi', CutoffScoreStrictness.Strict) // true
 ```
 Returns whether input text string is gibberish, according to trained cutoff predictions and desired strictness. `strictness` argument must be of a member of the `CutoffScoreStrictness` enum (`Strict | Avg | Loose`), where `CutoffScoreStrictness.Strict` will classify more input strings as gibberish and `CutoffScoreStrictness.Loose` will classify fewer input strings as gibberish. The `strictness` argument defaults to `Avg`. 
 
 
 ### `trainWithEnglishText`
 ```js
-gibberishScorer.trainWithEnglishText(my_own_training_text) // Additional training for gibberishScorer if desired
+textScorer.trainWithEnglishText(my_own_training_text) // Additional training for textScorer if desired
 ```
-Trains the `GibberishScorer` with any training string passed to it. This will re-adjust the N-gram probabilities *on top of the initial training and any prior training*. Training also automatically recalibrates cutoff score predictions. Recommended to train only on long training corpus in accurate English.
+Trains the `TextScorer` object with any training string passed to it. This will re-adjust the N-gram probabilities *on top of the initial training and any prior training*. Training also automatically recalibrates cutoff score predictions. Recommended to train only on long training corpus in accurate English.
 
 
 ### `recalibrateCutoffScores`
 ```js
-gibberishScorer.recalibrateCutoffScores(good_sample_texts, bad_sample_texts) // Recalculate predicted score cutoffs based on provided samples
+textScorer.recalibrateCutoffScores(good_sample_texts, bad_sample_texts) // Recalculate predicted score cutoffs based on provided samples
 ```
 Manually re-calibrate the estimated cutoff scores. Takes parameters of two hand-picked `string[]` of good and bad sample texts.
 
 
 ### `getTextScore`
 ```js
-gibberishScorer.getTextScore('The quick fox jumps over the lazy dog') // 0.07108346875540186
-gibberishScorer.getTextScore('asdk akljhsug wertgbk') // 0.009196665505633908
+textScorer.getTextScore('The quick fox jumps over the lazy dog') // 0.07108346875540186
+textScorer.getTextScore('asdk akljhsug wertgbk') // 0.009196665505633908
 ```
 Returns actual calculated number score of input text (average probability of all N-grams in input text: range between `0` and `1` with avg `1/26` for bigrams and `1/(26*26) = 1/676` for trigrams). Useful for viewing scores of input texts to choose your own hard-coded cutoff score points.
 
 
 ### `getCutoffScores`
 ```js
-gibberishScorer.getCutoffScores()
+textScorer.getCutoffScores()
 // {
 //    loose: 0.017614231370230753,
 //    avg: 0.025681000339544513,
@@ -97,7 +97,7 @@ Returns predicted cutoff scores at all three strictness levels (`loose`, `avg`, 
 
 ### `getTextScoreAndCutoffs`
 ```js
-gibberishScorer.getTextScoreAndCutoffs('This sentence is half gibberish lwpqgtyukcvi')
+textScorer.getTextScoreAndCutoffs('This sentence is half gibberish lwpqgtyukcvi')
 // {
 //   cutoffs: {
 //     loose: 0.017614231370230753,
@@ -112,7 +112,7 @@ Returns current predicted cutoff scores of `NGramMatrix` bundled together with t
 
 ### Type and enum definitions
 ```ts
-interface GibberishScorerInterface {
+interface TextScorerInterface {
     NGramMatrix: NGramMatrix
     trainWithEnglishText: (text: string) => void
     recalibrateScoreCutoffs: (goodSamples: string[], badSamples: string[]) => void
@@ -122,7 +122,7 @@ interface GibberishScorerInterface {
     getTextScoreAndCutoffs: (text: string) => { cutoffs: CutoffScore; score: number }
 }
 
-class GibberishScorer implements GibberishScorerInterface {}
+class TextScorer implements TextScorerInterface {}
 
 interface NGramMatrix {
     cutoffScores: CutoffScore
