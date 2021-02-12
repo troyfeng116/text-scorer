@@ -1,7 +1,7 @@
 {
-    "name": "gibberish-scorer",
-    "version": "1.1.0",
-    "description": "A configurable gibberish scorer.",
+    "name": "text-scorer",
+    "version": "2.0.0",
+    "description": "A configurable text scorer.",
     "main": "lib/index.js",
     "types": "lib/index.d.ts",
     "files": [
@@ -17,7 +17,15 @@
         "type": "git",
         "url": "git+https://github.com/troyfeng116/gibberish-scorer.git"
     },
-    "keywords": [],
+    "keywords": [
+        "gibberish",
+        "language",
+        "processing",
+        "text",
+        "markov",
+        "bigram",
+        "trigram"
+    ],
     "author": "Troy Feng",
     "license": "MIT",
     "bugs": {

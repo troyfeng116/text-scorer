@@ -30,7 +30,7 @@ export interface NGramMatrixOptions {
     additionalCharsToInclude?: string
 }
 
-interface GibberishScorerInterface {
+interface TextScorerInterface {
     NGramMatrix: NGramMatrix
     trainWithEnglishText: (text: string) => void
     recalibrateCutoffScores: (goodSamples: string[], badSamples: string[]) => void
@@ -40,7 +40,7 @@ interface GibberishScorerInterface {
     getTextScoreAndCutoffs: (text: string) => { cutoffs: CutoffScore; score: number }
 }
 
-export class GibberishScorer implements GibberishScorerInterface {
+export class TextScorer implements TextScorerInterface {
     NGramMatrix: NGramMatrix
 
     constructor(useBigram = true, options?: NGramMatrixOptions) {

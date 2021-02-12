@@ -1,2 +1,2 @@
-import { GibberishScorer, CutoffScoreStrictness, NGramMatrix } from './src'
-export { GibberishScorer, CutoffScoreStrictness, NGramMatrix }
+import { TextScorer, CutoffScoreStrictness, NGramMatrix } from './src'
+export { TextScorer, CutoffScoreStrictness, NGramMatrix }
