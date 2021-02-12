@@ -1,6 +1,6 @@
 # text-scorer (v2.0.0)
 
-A configurable text scorer/gibberish detector.
+A configurable text quality scorer/gibberish detector.
 
 ## Installation
 
