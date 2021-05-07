@@ -4,8 +4,17 @@ import { TrigramMatrixLayer } from '../trigram/TrigramMatrix'
 import { DEFAULT_BIGRAM_MATRIX_JSON, DEFAULT_TRIGRAM_MATRIX_JSON } from './constants'
 
 export const cleanTrainingText = (text: string, charsToInclude: string, ignoreCase: boolean): string => {
-    if (ignoreCase) return text.toLowerCase().replace(new RegExp(`[^${charsToInclude}]`, 'gi'), '')
-    return text.replace(new RegExp(`[^${charsToInclude}]`, 'gi'), '')
+    const map: boolean[] = new Array(256)
+    for (let i = 0; i < 256; i++) map[i] = false
+    for (let i = 0; i < charsToInclude.length; i++) {
+        map[charsToInclude.charCodeAt(i)] = true
+    }
+    if (ignoreCase) text = text.toLowerCase()
+    let cleanText = ''
+    for (let i = 0; i < text.length; i++) {
+        if (map[text.charCodeAt(i)] === true) cleanText += text[i]
+    }
+    return cleanText
 }
 
 export const cleanTextToScore = (text: string, ignoreCase: boolean): string => {
