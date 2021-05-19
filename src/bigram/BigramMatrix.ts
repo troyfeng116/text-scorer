@@ -74,19 +74,19 @@ export class BigramMatrix implements BigramMatrixInterface {
         strictness?: CutoffScoreStrictness,
     ): {
         numWords: number
-        words: string[]
         numGibberishWords: number
-        gibberishWords: string[]
-        wordScores: number[]
+        words: { word: string; score: number }[]
+        gibberishWords: { word: string; score: number }[]
         cutoffs: CutoffScore
     } => {
-        const words = cleanAndExtractWordsFromTextToScore(text, this.ignoreCase)
-        const gibberishWords: string[] = []
-        const wordScores: number[] = []
-        for (const word of words) {
-            if (this.isGibberish(word, strictness)) gibberishWords.push(word)
-            wordScores.push(this.getScore(word))
+        const wordTokens = cleanAndExtractWordsFromTextToScore(text, this.ignoreCase)
+        const gibberishWords: { word: string; score: number }[] = []
+        const words: { word: string; score: number }[] = []
+        for (const wToken of wordTokens) {
+            const wordAndScoreBundle = { word: wToken, score: this.getScore(wToken) }
+            if (this.isGibberish(wToken, strictness)) gibberishWords.push(wordAndScoreBundle)
+            words.push(wordAndScoreBundle)
         }
-        return { numWords: words.length, words: words, numGibberishWords: gibberishWords.length, gibberishWords: gibberishWords, wordScores: wordScores, cutoffs: this.cutoffScores }
+        return { numWords: wordTokens.length, numGibberishWords: gibberishWords.length, words: words, gibberishWords: gibberishWords, cutoffs: this.cutoffScores }
     }
 }
