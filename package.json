@@ -15,7 +15,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/troyfeng116/gibberish-scorer.git"
+        "url": "git+https://github.com/troyfeng116/text-scorer.git"
     },
     "keywords": [
         "gibberish",
@@ -24,14 +24,15 @@
         "text",
         "markov",
         "bigram",
-        "trigram"
+        "trigram",
+        "score"
     ],
     "author": "Troy Feng",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/troyfeng116/gibberish-scorer/issues"
+        "url": "https://github.com/troyfeng116/text-scorer/issues"
     },
-    "homepage": "https://github.com/troyfeng116/gibberish-scorer#readme",
+    "homepage": "https://github.com/troyfeng116/text-scorer#readme",
     "devDependencies": {
         "@typescript-eslint/eslint-plugin": "^4.15.0",
         "@typescript-eslint/parser": "^4.15.0",
