@@ -23,7 +23,7 @@ export const cleanTextToScore = (text: string, ignoreCase: boolean): string => {
 }
 
 export const cleanAndExtractWordsFromTextToScore = (text: string, ignoreCase: boolean): string[] => {
-    return cleanTextToScore(text, ignoreCase).split(/\b/g)
+    return cleanTextToScore(text, ignoreCase).split(/[^a-zA-Z\'\-]/gi)
 }
 
 // Let S = {unique chars : charsToIncludeStr}. Returns { charCodeMap: S -> [0,1,2,...,|S|-1], uniqueChars: |S|, noDuplicateCharsStr: string }

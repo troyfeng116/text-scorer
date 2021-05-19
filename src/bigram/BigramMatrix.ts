@@ -69,7 +69,7 @@ export class BigramMatrix implements BigramMatrixInterface {
         return this.getScore(text) < cutoff
     }
 
-    getDetailedWordInfo = (
+    getWordByWordAnalysis = (
         text: string,
         strictness?: CutoffScoreStrictness,
     ): {
@@ -77,12 +77,16 @@ export class BigramMatrix implements BigramMatrixInterface {
         words: string[]
         numGibberishWords: number
         gibberishWords: string[]
+        textScores: number[]
+        cutoffs: CutoffScore
     } => {
         const words = cleanAndExtractWordsFromTextToScore(text, this.ignoreCase)
-        const gibberishWords = []
+        const gibberishWords: string[] = []
+        const textScores: number[] = []
         for (const word of words) {
             if (this.isGibberish(word, strictness)) gibberishWords.push(word)
+            textScores.push(this.getScore(word))
         }
-        return { numWords: words.length, words: words, numGibberishWords: gibberishWords.length, gibberishWords: gibberishWords }
+        return { numWords: words.length, words: words, numGibberishWords: gibberishWords.length, gibberishWords: gibberishWords, textScores: textScores, cutoffs: this.cutoffScores }
     }
 }

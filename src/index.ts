@@ -20,7 +20,7 @@ export interface NGramMatrix {
     getScore: (text: string) => number
     recalibrateCutoffScores: (goodSamples?: string[], badSamples?: string[]) => void
     isGibberish: (text: string, strictness?: CutoffScoreStrictness) => boolean
-    getDetailedWordInfo: (
+    getWordByWordAnalysis: (
         text: string,
         strictness?: CutoffScoreStrictness,
     ) => {
@@ -28,6 +28,8 @@ export interface NGramMatrix {
         words: string[]
         numGibberishWords: number
         gibberishWords: string[]
+        textScores: number[]
+        cutoffs: CutoffScore
     }
 }
 
@@ -52,8 +54,11 @@ interface TextScorerInterface {
         strictness?: CutoffScoreStrictness,
     ) => {
         numWords: number
+        words: string[]
         numGibberishWords: number
         gibberishWords: string[]
+        textScores: number[]
+        cutoffs: CutoffScore
     }
 }
 
@@ -88,7 +93,9 @@ export class TextScorer implements TextScorerInterface {
         words: string[]
         numGibberishWords: number
         gibberishWords: string[]
+        textScores: number[]
+        cutoffs: CutoffScore
     } => {
-        return this.NGramMatrix.getDetailedWordInfo(text, strictness)
+        return this.NGramMatrix.getWordByWordAnalysis(text, strictness)
     }
 }
