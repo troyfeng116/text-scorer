@@ -1,6 +1,6 @@
 {
     "name": "text-scorer",
-    "version": "2.1.0",
+    "version": "2.1.1",
     "description": "A configurable text scorer.",
     "main": "lib/index.js",
     "types": "lib/index.d.ts",
@@ -10,7 +10,7 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "build": "tsc",
-        "prepare": "npm run build",
+        "prepare": "rm -rf lib && npm run build",
         "sandbox": "tsc src/sandbox.ts --outDir lib && node lib/sandbox.js"
     },
     "repository": {
