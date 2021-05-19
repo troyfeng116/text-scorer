@@ -1,5 +1,5 @@
 import { DEFAULT_BAD_SAMPLES, DEFAULT_GOOD_SAMPLES, DEFAULT_CHARS_TO_INCLUDE, UPPERCASE_CHARS } from '../utils/constants'
-import { getCharCodeMap, getDefaultBigramMatrixFromJSON } from '../utils/helpers'
+import { cleanAndExtractWordsFromTextToScore, getCharCodeMap, getDefaultBigramMatrixFromJSON } from '../utils/helpers'
 import { createEmptyBigramMatrix, getBigramCutoffScores, runTextThroughBigramMatrix, trainBigramMatrix } from './bigramHelpers'
 import { CutoffScore, CutoffScoreStrictness, NGramMatrix, NGramMatrixOptions } from '..'
 import { HARRY_POTTER_TRAINING_TEXT } from '../data/harry-potter-1'
@@ -67,5 +67,22 @@ export class BigramMatrix implements BigramMatrixInterface {
         const { loose, avg, strict } = this.cutoffScores
         const cutoff = strictness === CutoffScoreStrictness.Strict ? strict : strictness === CutoffScoreStrictness.Avg ? avg : loose
         return this.getScore(text) < cutoff
+    }
+
+    getDetailedWordInfo = (
+        text: string,
+        strictness?: CutoffScoreStrictness,
+    ): {
+        numWords: number
+        words: string[]
+        numGibberishWords: number
+        gibberishWords: string[]
+    } => {
+        const words = cleanAndExtractWordsFromTextToScore(text, this.ignoreCase)
+        const gibberishWords = []
+        for (const word of words) {
+            if (this.isGibberish(word, strictness)) gibberishWords.push(word)
+        }
+        return { numWords: words.length, words: words, numGibberishWords: gibberishWords.length, gibberishWords: gibberishWords }
     }
 }
