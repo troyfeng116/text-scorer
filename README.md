@@ -1,4 +1,4 @@
-# text-scorer (v2.0.1)
+# text-scorer (v2.1.0)
 
 A configurable text quality scorer/gibberish detector.
 
