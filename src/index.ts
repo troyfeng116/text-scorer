@@ -28,7 +28,7 @@ export interface NGramMatrix {
         words: string[]
         numGibberishWords: number
         gibberishWords: string[]
-        textScores: number[]
+        wordScores: number[]
         cutoffs: CutoffScore
     }
 }
@@ -57,7 +57,7 @@ interface TextScorerInterface {
         words: string[]
         numGibberishWords: number
         gibberishWords: string[]
-        textScores: number[]
+        wordScores: number[]
         cutoffs: CutoffScore
     }
 }
@@ -93,7 +93,7 @@ export class TextScorer implements TextScorerInterface {
         words: string[]
         numGibberishWords: number
         gibberishWords: string[]
-        textScores: number[]
+        wordScores: number[]
         cutoffs: CutoffScore
     } => {
         return this.NGramMatrix.getWordByWordAnalysis(text, strictness)
