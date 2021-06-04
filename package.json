@@ -1,6 +1,6 @@
 {
     "name": "text-scorer",
-    "version": "2.1.1",
+    "version": "2.1.2",
     "description": "A configurable text scorer.",
     "main": "lib/index.js",
     "types": "lib/index.d.ts",
@@ -32,7 +32,7 @@
     "bugs": {
         "url": "https://github.com/troyfeng116/text-scorer/issues"
     },
-    "homepage": "https://github.com/troyfeng116/text-scorer#readme",
+    "homepage": "https://github.com/troyfeng116/text-scorer",
     "devDependencies": {
         "@typescript-eslint/eslint-plugin": "^4.15.0",
         "@typescript-eslint/parser": "^4.15.0",
