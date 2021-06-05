@@ -3,7 +3,7 @@ import { TrigramMatrix } from './trigram'
 
 // TO DO: Filter outliers from bad/good text score vectors
 /**
- * Contains `strict`, `loose`, and `avg` numerical field definitions used to control strictness when calling `isGibberish` or `getDetailedWordInfo`.
+ * Contains `strict`, `loose`, and `avg` numerical field definitions used to control strictness when testing for gibberish.
  *
  * If a query's numerical score is less than `strict`, for example, that query would be marked as gibberish regardless of indicated strictness.
  * But if a query's score is between `strict` and `avg`, that query would be marked as gibberish if `CutoffScoreStrictness.Strict` is indicated and not gibberish otherwise.
@@ -19,10 +19,11 @@ export interface CutoffScore {
  * Enum members include:
  * - #### `CutoffScoreStrictness.Strict`
  *      More strict treatment of misspelling, partial gibberish, etc.
- *      (i.e. more likely to label any input query as gibberish).
+ *      (i.e. more likely to label any query as gibberish).
  *      May generate more false positives for gibberish.
  * - #### `CutoffScoreStrictness.Loose`
- *      Less strict treatment of misspelling, partial gibberish, etc. (i.e. less likely to label any input query as gibberish).
+ *      Less strict treatment of misspelling, partial gibberish, etc.
+ *      (i.e. less likely to label any query as gibberish).
  *      May fail to correctly label some minor misspelling or partial gibberish as gibberish.
  * - #### `CutoffScoreStrictness.Avg`
  *      Strictness in between `Strict` and `Loose`.
@@ -34,7 +35,7 @@ export enum CutoffScoreStrictness {
 }
 
 /**
- * Defines public instance variables + methods for `NGramMatrix` objects.
+ * Defines public instance variables and methods for `NGramMatrix` objects.
  * Implemented by `BigramMatrix` and `TrigramMatrix`.
  */
 export interface NGramMatrix {
@@ -55,7 +56,7 @@ export interface NGramMatrix {
      */
     getCutoffScores: () => CutoffScore
     /**
-     * Overrides previously learned predictions by processing scores of few-shot samples.
+     * Overrides previously learned cutoff score predictions by processing scores of few-shot text samples.
      */
     recalibrateCutoffScores: (goodSamples?: string[], badSamples?: string[]) => void
     /**
@@ -89,10 +90,10 @@ export interface NGramMatrix {
 }
 
 /**
- * Additional initialization options. All fields are optional. `NGramMatrixOptions` fields include:
+ * Additional initialization options for `NGramMatrix` constructors. All fields are optional. `NGramMatrixOptions` fields include:
  * - #### `initialTrainingText`
  *      Baseline corpus from which `TextScorer` learns n-gram frequencies.
- *      Should be well-formed corpus in desired language.
+ *      Recommended to use a well-formed and substantial corpus in desired language.
  *      Defaults to J.K. Rowlings's *Harry Potter and the Sorcerer's Stone*.
  * - #### `goodSamples`
  *      An array of strings consisting of well-formed queries (phrases, sentences, words, etc.) in desired language.
@@ -108,7 +109,7 @@ export interface NGramMatrix {
  * - #### `additionalCharsToInclude`
  *      A string consisting of additional chars to include as n-gram nodes, in addition to default chars (`a-z` and white space, plus `A-Z` if `ignoreCase` is `false`).
  *      For example, initializing with `additionCharsToInclude = '.,;?!` would add nodes for common punctuation chars.
- *      Note that adding many additional chars may affect runtime, increase noise, and flatten overall distribution, causing more unpredictability for binary `isGibberish` prediction operations.
+ *      Note that adding many additional chars may affect runtime, increase noise, and flatten overall distribution, causing more unpredictability for binary gibberish prediction operations.
  *      Defaults to empty string (i.e. model only considers alphabetic chars and spaces).
  */
 export interface NGramMatrixOptions {
@@ -141,25 +142,25 @@ interface TextScorerInterface {
 
 export class TextScorer implements TextScorerInterface {
     /**
-     * Underlying `NGramMatrix` object used to track n-gram frequency models
+     * Underlying `NGramMatrix` object used to track n-gram frequency models.
      * @readonly
      */
     readonly NGramMatrix: NGramMatrix
 
     /**
-     * Initializes `TextScorer` object. English recommended; support only for English alphabet.
-     * @param useBigram Indicates whether to use bigrams or trigrams to score inputs. Defaults to `true` (prefers bigrams).
+     * Initializes `TextScorer` object.
+     * @param useBigram Indicates whether to use bigrams or trigrams for training and for scoring inputs. Defaults to `true` (prefers bigrams).
      * @param options Additional initialization options. All fields are optional. `NGramMatrixOptions` fields include:
      * - #### `initialTrainingText`
      *      Baseline corpus from which `TextScorer` learns n-gram frequencies.
-     *      Should be well-formed corpus in desired language.
+     *      Recommended to use a well-formed and substantial corpus.
      *      Defaults to J.K. Rowlings's *Harry Potter and the Sorcerer's Stone*.
      * - #### `goodSamples`
-     *      An array of strings consisting of well-formed queries (phrases, sentences, words, etc.) in desired language.
+     *      An array of strings consisting of well-formed queries (phrases, sentences, words, etc.).
      *      Used to calculate cutoff score predictions by learning typical scores of well-formed samples.
      *      Defaults to hard-coded array of well-formed English strings.
      * - #### `badSamples`
-     *      An array of strings consisting of misspelled or gibberish queries in desired language.
+     *      An array of strings consisting of misspelled or gibberish queries.
      *      Used to calculate cutoff score predictions by learning typical scores of gibberish samples.
      *      Defaults to hard-coded array of badly misspelled and gibberish English strings.
      * - #### `ignoreCase`
@@ -168,7 +169,7 @@ export class TextScorer implements TextScorerInterface {
      * - #### `additionalCharsToInclude`
      *      A string consisting of additional chars to include as n-gram nodes, in addition to default chars (`a-z` and white space, plus `A-Z` if `ignoreCase` is `false`).
      *      For example, initializing with `additionCharsToInclude = '.,;?!` would add nodes for common punctuation chars.
-     *      Note that adding many additional chars may affect runtime, increase noise, and flatten overall distribution, causing more unpredictability for binary `isGibberish` prediction operations.
+     *      Note that adding many additional chars may affect runtime, increase noise, and flatten overall distribution, causing more unpredictability for binary gibberish prediction operations.
      *      Defaults to empty string (i.e. model only considers alphabetic chars and spaces).
      */
     constructor(useBigram = true, options?: NGramMatrixOptions) {
@@ -179,7 +180,6 @@ export class TextScorer implements TextScorerInterface {
      * Additional training for `TextScorer` with desired corpus to reinforce or adjust previously learned n-gram frequency distributions.
      * Note that this method also automatically recalibrates all cutoff scores based on the new learned probabilities.
      * @param text A well-formed training corpus for additional n-gram probability learning, *in addition to* baseline and prior training.
-     * @returns `void` (trains underlying `NGramMatrix` by adjusting probability distributions for n-grams occurring in `text`)
      */
     trainWithEnglishText = (text: string): void => this.NGramMatrix.train(text)
 
@@ -188,7 +188,6 @@ export class TextScorer implements TextScorerInterface {
      * Note that this method will override the previous cutoff scores.
      * @param goodSamples An array of strings consisting of well-formed queries (phrases, sentences, words, etc.).
      * @param badSamples An array of strings consisting of misspelled or gibberish queries.
-     * @returns `void` (resets cutoff scores)
      */
     recalibrateCutoffScores = (goodSamples: string[], badSamples: string[]): void => this.NGramMatrix.recalibrateCutoffScores(goodSamples, badSamples)
 
