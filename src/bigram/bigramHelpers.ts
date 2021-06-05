@@ -1,4 +1,5 @@
-import { cleanTextToScore, cleanTrainingText, removeOutliers } from '../utils/helpers'
+import { cleanTextToScore, cleanTrainingText } from '../utils/helpers'
+import { removeOutliers } from '../utils/stats'
 import { BigramMatrixRow } from './BigramMatrix'
 import { CutoffScore } from '..'
 

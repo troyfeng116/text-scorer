@@ -1,5 +1,6 @@
 import { CutoffScore } from '..'
-import { cleanTextToScore, cleanTrainingText, removeOutliers } from '../utils/helpers'
+import { cleanTextToScore, cleanTrainingText } from '../utils/helpers'
+import { removeOutliers } from '../utils/stats'
 import { TrigramMatrixLayer } from './TrigramMatrix'
 
 /**
