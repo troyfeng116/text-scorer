@@ -38,11 +38,44 @@ export enum CutoffScoreStrictness {
  * Implemented by `BigramMatrix` and `TrigramMatrix`.
  */
 export interface NGramMatrix {
+    /**
+     * Additional training on matrix in addition to prior training.
+     * @param text Training corpus.
+     */
     train: (text: string) => void
+    /**
+     * Returns score for query string.
+     * @param text Query string to be scored.
+     * @returns Score for query corresponding to average n-gram occurrence probability.
+     */
     getScore: (text: string) => number
+    /**
+     * Retrieves cutoff scores at all levels of strictness.
+     * @returns `CutoffScore` object containing predicted `strict`, `loose`, and `avg` strictness values.
+     */
     getCutoffScores: () => CutoffScore
+    /**
+     * Overrides previously learned predictions by processing scores of few-shot samples.
+     */
     recalibrateCutoffScores: (goodSamples?: string[], badSamples?: string[]) => void
+    /**
+     * Returns whether query string is gibberish according to indicated strictness.
+     * @param text The query string to be tested.
+     * @param strictness Indicates the desired level of strictness.
+     * @returns `true` if query is gibberish, `false` otherwise.
+     */
     isGibberish: (text: string, strictness?: CutoffScoreStrictness) => boolean
+    /**
+     * Returns detailed analysis of query string broken down word-by-word.
+     * @param text A query string to be analyzed word-by-word for scoring.
+     * @param strictness Indicates the desired strictness of the cutoff score. Defaults to `CutoffScoreStrictness.Avg`.
+     * @returns Object containing:
+     * - `numWords`: the number of word tokens in query.
+     * - `numGibberishWords`: the number of gibberish word tokens.
+     * - `words`: an array containing the individual word tokens extracted from query.
+     * - `gibberishWords`: subset of `words` determined to be gibberish.
+     * - `cutoffs`: the `CutoffScore` object used to evaluate the query for gibberish tokens.
+     */
     getWordByWordAnalysis: (
         text: string,
         strictness?: CutoffScoreStrictness,
