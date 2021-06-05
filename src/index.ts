@@ -70,11 +70,11 @@ export interface NGramMatrix {
      * @param text A query string to be analyzed word-by-word for scoring.
      * @param strictness Indicates the desired strictness of the cutoff score. Defaults to `CutoffScoreStrictness.Avg`.
      * @returns Object containing:
-     * - `numWords`: the number of word tokens in query.
-     * - `numGibberishWords`: the number of gibberish word tokens.
-     * - `words`: an array containing the individual word tokens extracted from query.
-     * - `gibberishWords`: subset of `words` determined to be gibberish.
-     * - `cutoffs`: the `CutoffScore` object used to evaluate the query for gibberish tokens.
+     *      - `numWords`: the number of word tokens in query.
+     *      - `numGibberishWords`: the number of gibberish word tokens.
+     *      - `words`: an array containing the individual word tokens extracted from query.
+     *      - `gibberishWords`: subset of `words` determined to be gibberish.
+     *      - `cutoffs`: the `CutoffScore` object used to evaluate the query for gibberish tokens.
      */
     getWordByWordAnalysis: (
         text: string,
@@ -91,25 +91,25 @@ export interface NGramMatrix {
 /**
  * Additional initialization options. All fields are optional. `NGramMatrixOptions` fields include:
  * - #### `initialTrainingText`
- * Baseline corpus from which `TextScorer` learns n-gram frequencies.
- * Should be well-formed corpus in desired language.
- * Defaults to J.K. Rowlings's *Harry Potter and the Sorcerer's Stone*.
+ *      Baseline corpus from which `TextScorer` learns n-gram frequencies.
+ *      Should be well-formed corpus in desired language.
+ *      Defaults to J.K. Rowlings's *Harry Potter and the Sorcerer's Stone*.
  * - #### `goodSamples`
- * An array of strings consisting of well-formed queries (phrases, sentences, words, etc.) in desired language.
- * Used to calculate cutoff score predictions by learning typical scores of well-formed samples.
- * Defaults to hard-coded array of well-formed English strings.
+ *      An array of strings consisting of well-formed queries (phrases, sentences, words, etc.) in desired language.
+ *      Used to calculate cutoff score predictions by learning typical scores of well-formed samples.
+ *      Defaults to hard-coded array of well-formed English strings.
  * - #### `badSamples`
- * An array of strings consisting of misspelled or gibberish queries in desired language.
- * Used to calculate cutoff score predictions by learning typical scores of gibberish samples.
- * Defaults to hard-coded array of badly misspelled and gibberish English strings.
+ *      An array of strings consisting of misspelled or gibberish queries in desired language.
+ *      Used to calculate cutoff score predictions by learning typical scores of gibberish samples.
+ *      Defaults to hard-coded array of badly misspelled and gibberish English strings.
  * - #### `ignoreCase`
- * Indicates whether model should convert all training and query inputs to lower case.
- * Defaults to `true` (prefers `ignoreCase` for less nodes and more efficient training).
+ *      Indicates whether model should convert all training and query inputs to lower case.
+ *      Defaults to `true` (prefers `ignoreCase` for less nodes and more efficient training).
  * - #### `additionalCharsToInclude`
- * A string consisting of additional chars to include as n-gram nodes, in addition to default chars (`a-z` and white space, plus `A-Z` if `ignoreCase` is `false`).
- * For example, initializing with `additionCharsToInclude = '.,;?!` would add nodes for common punctuation chars.
- * Note that adding many additional chars may affect runtime, increase noise, and flatten overall distribution, causing more unpredictability for binary `isGibberish` prediction operations.
- * Defaults to empty string (i.e. model only considers alphabetic chars and spaces).
+ *      A string consisting of additional chars to include as n-gram nodes, in addition to default chars (`a-z` and white space, plus `A-Z` if `ignoreCase` is `false`).
+ *      For example, initializing with `additionCharsToInclude = '.,;?!` would add nodes for common punctuation chars.
+ *      Note that adding many additional chars may affect runtime, increase noise, and flatten overall distribution, causing more unpredictability for binary `isGibberish` prediction operations.
+ *      Defaults to empty string (i.e. model only considers alphabetic chars and spaces).
  */
 export interface NGramMatrixOptions {
     initialTrainingText?: string
@@ -151,25 +151,25 @@ export class TextScorer implements TextScorerInterface {
      * @param useBigram Indicates whether to use bigrams or trigrams to score inputs. Defaults to `true` (prefers bigrams).
      * @param options Additional initialization options. All fields are optional. `NGramMatrixOptions` fields include:
      * - #### `initialTrainingText`
-     * Baseline corpus from which `TextScorer` learns n-gram frequencies.
-     * Should be well-formed corpus in desired language.
-     * Defaults to J.K. Rowlings's *Harry Potter and the Sorcerer's Stone*.
+     *      Baseline corpus from which `TextScorer` learns n-gram frequencies.
+     *      Should be well-formed corpus in desired language.
+     *      Defaults to J.K. Rowlings's *Harry Potter and the Sorcerer's Stone*.
      * - #### `goodSamples`
-     * An array of strings consisting of well-formed queries (phrases, sentences, words, etc.) in desired language.
-     * Used to calculate cutoff score predictions by learning typical scores of well-formed samples.
-     * Defaults to hard-coded array of well-formed English strings.
+     *      An array of strings consisting of well-formed queries (phrases, sentences, words, etc.) in desired language.
+     *      Used to calculate cutoff score predictions by learning typical scores of well-formed samples.
+     *      Defaults to hard-coded array of well-formed English strings.
      * - #### `badSamples`
-     * An array of strings consisting of misspelled or gibberish queries in desired language.
-     * Used to calculate cutoff score predictions by learning typical scores of gibberish samples.
-     * Defaults to hard-coded array of badly misspelled and gibberish English strings.
+     *      An array of strings consisting of misspelled or gibberish queries in desired language.
+     *      Used to calculate cutoff score predictions by learning typical scores of gibberish samples.
+     *      Defaults to hard-coded array of badly misspelled and gibberish English strings.
      * - #### `ignoreCase`
-     * Indicates whether model should convert all training and query inputs to lower case.
-     * Defaults to `true` (prefers `ignoreCase` for less nodes and more efficient training).
+     *      Indicates whether model should convert all training and query inputs to lower case.
+     *      Defaults to `true` (prefers `ignoreCase` for less nodes and more efficient training).
      * - #### `additionalCharsToInclude`
-     * A string consisting of additional chars to include as n-gram nodes, in addition to default chars (`a-z` and white space, plus `A-Z` if `ignoreCase` is `false`).
-     * For example, initializing with `additionCharsToInclude = '.,;?!` would add nodes for common punctuation chars.
-     * Note that adding many additional chars may affect runtime, increase noise, and flatten overall distribution, causing more unpredictability for binary `isGibberish` prediction operations.
-     * Defaults to empty string (i.e. model only considers alphabetic chars and spaces).
+     *      A string consisting of additional chars to include as n-gram nodes, in addition to default chars (`a-z` and white space, plus `A-Z` if `ignoreCase` is `false`).
+     *      For example, initializing with `additionCharsToInclude = '.,;?!` would add nodes for common punctuation chars.
+     *      Note that adding many additional chars may affect runtime, increase noise, and flatten overall distribution, causing more unpredictability for binary `isGibberish` prediction operations.
+     *      Defaults to empty string (i.e. model only considers alphabetic chars and spaces).
      */
     constructor(useBigram = true, options?: NGramMatrixOptions) {
         this.NGramMatrix = useBigram ? new BigramMatrix(options) : new TrigramMatrix(options)
@@ -196,8 +196,8 @@ export class TextScorer implements TextScorerInterface {
      * Given query string, determines whether query is gibberish or not.
      * @param text A query string to be tested for whether it is gibberish.
      * @param strictness Indicates the desired strictness of the cutoff score.
-     * Must be a member of the `CutoffScoreStrictness` enum.
-     * Defaults to `CutoffScoreStrictness.Avg`.
+     *      Must be a member of the `CutoffScoreStrictness` enum.
+     *      Defaults to `CutoffScoreStrictness.Avg`.
      * @returns `true` if gibberish, `false` otherwise.
      */
     isGibberish = (text: string, strictness = CutoffScoreStrictness.Avg): boolean => this.NGramMatrix.isGibberish(text, strictness)
@@ -230,14 +230,14 @@ export class TextScorer implements TextScorerInterface {
      * Given query string, returns detailed analysis of query broken down word-by-word.
      * @param text A query string to be analyzed word-by-word for scoring.
      * @param strictness Indicates the desired strictness of the cutoff score.
-     * Must be a member of the `CutoffScoreStrictness` enum.
-     * Defaults to `CutoffScoreStrictness.Avg`.
+     *      Must be a member of the `CutoffScoreStrictness` enum.
+     *      Defaults to `CutoffScoreStrictness.Avg`.
      * @returns Object containing:
-     * - `numWords`: the number of word tokens in query.
-     * - `numGibberishWords`: the number of gibberish word tokens.
-     * - `words`: an array containing the individual word tokens extracted from query.
-     * - `gibberishWords`: subset of `words` determined to be gibberish.
-     * - `cutoffs`: the `CutoffScore` object used to evaluate the query for gibberish tokens.
+     *      - `numWords`: the number of word tokens in query.
+     *      - `numGibberishWords`: the number of gibberish word tokens.
+     *      - `words`: an array containing the individual word tokens extracted from query.
+     *      - `gibberishWords`: subset of `words` determined to be gibberish.
+     *      - `cutoffs`: the `CutoffScore` object used to evaluate the query for gibberish tokens.
      */
     getDetailedWordInfo = (
         text: string,
