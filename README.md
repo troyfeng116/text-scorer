@@ -39,6 +39,13 @@ const textScorer = new TextScorer(useBigram?: boolean, options?: {
     ignoreCase?: boolean
     additionalCharsToInclude?: string
 })
+
+// Sample initialization:
+// const textScorer = new TextScorer(true, {
+//     initialTrainingText: MY_TRAINING_TEXT,
+//     ignoreCase: false,
+//     additionalCharsToInclude: '.,!?',
+// })
 ```
 Instantiates new `TextScorer` object. Constructor takes optional arguments `useBigram` (defaults to `true`, which prefers bigrams over trigrams) and `options`:
 
@@ -81,7 +88,7 @@ Manually re-calibrate the estimated cutoff scores. Takes parameters of two hand-
 textScorer.getTextScore('The quick fox jumps over the lazy dog') // 0.07108346875540186
 textScorer.getTextScore('asdk akljhsug wertgbk') // 0.009196665505633908
 ```
-Returns actual calculated number score of input text (average probability of all N-grams in input text: range between `0` and `1` with avg `1/26` for bigrams and `1/(26*26) = 1/676` for trigrams). Useful for viewing scores of input texts to choose your own hard-coded cutoff score points.
+Returns actual calculated number score of input text (average probability of all N-grams in input text: range between `0` and `1` with avg `1/(26*26) = 1/676` for bigrams and `1/(26*26*26) = 1/17576` for trigrams). Useful for viewing scores of input texts to choose your own hard-coded cutoff score points.
 
 
 ### `getCutoffScores`
@@ -161,9 +168,9 @@ interface TextScorerInterface {
 class TextScorer implements TextScorerInterface {}
 
 interface NGramMatrix {
-    cutoffScores: CutoffScore
     train: (text: string) => void
     getScore: (text: string) => number
+    getCutoffScores: () => CutoffScore
     recalibrateCutoffScores: (goodSamples?: string[], badSamples?: string[]) => void
     isGibberish: (text: string, strictness?: CutoffScoreStrictness) => boolean
     getWordByWordAnalysis: (
