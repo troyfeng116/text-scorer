@@ -56,7 +56,7 @@ export const cleanAndExtractWordsFromTextToScore = (text: string, ignoreCase: bo
  * @returns Object containing the following fields:
  * - `charCodeMap`: dict mapping unique chars occurring in `charsToIncludeStr` to matrix indices
  * - `uniqueChars`: number of unique chars found in `charsToIncludeStr`
- * - `noDuplicateCharsStr`: substring of `charsToIncludeStr` containing only unique chars
+ * - `noDuplicateCharsStr`: subsequence of `charsToIncludeStr` containing only unique chars
  */
 export const getCharCodeMap = (charsToIncludeStr: string): { charCodeMap: { [key: number]: number }; uniqueChars: number; noDuplicateCharsStr: string } => {
     const charCodeMap: { [key: number]: number } = {}

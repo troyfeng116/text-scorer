@@ -43,7 +43,7 @@ export const trainBigramMatrix = (bigramMatrix: BigramMatrixRow[], text: string,
 
 /**
  * Given text query string, returns score for query by processing character bigrams in query and running bigrams through `bigramMatrix`.
- * Returns average bigram occurrence probability to normalize over query length.
+ * The score is equal to the average bigram occurrence probability to normalize over query length.
  *
  * Note that this function uses log probabilities during calculation to prevent numerical underflow.
  * @param bigramMatrix `n`x`n` matrix storing frequencies of all bigrams.

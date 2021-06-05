@@ -47,7 +47,7 @@ export const trainTrigramMatrix = (trigramMatrix: TrigramMatrixLayer[], text: st
 
 /**
  * Given text query string, returns score for query by processing character trigrams in query and running trigrams through `trigramMatrix`.
- * Returns average trigram occurrence probability to normalize over query length.
+ * The score is equal to the average trigram occurrence probability to normalize over query length.
  *
  * Note that this function uses log probabilities during calculation to prevent numerical underflow.
  * @param trigramMatrix `n`x(`n`x`n`) matrix storing frequencies of all trigrams.

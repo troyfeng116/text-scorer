@@ -38,9 +38,9 @@ export enum CutoffScoreStrictness {
  * Implemented by `BigramMatrix` and `TrigramMatrix`.
  */
 export interface NGramMatrix {
-    cutoffScores: CutoffScore
     train: (text: string) => void
     getScore: (text: string) => number
+    getCutoffScores: () => CutoffScore
     recalibrateCutoffScores: (goodSamples?: string[], badSamples?: string[]) => void
     isGibberish: (text: string, strictness?: CutoffScoreStrictness) => boolean
     getWordByWordAnalysis: (
@@ -180,7 +180,7 @@ export class TextScorer implements TextScorerInterface {
      * Retrieves `strict`, `loose`, and `avg` cutoff scores.
      * @returns `CutoffScore` object containing `strict`, `loose`, and `avg` cutoff score predictions.
      */
-    getCutoffScores = (): CutoffScore => this.NGramMatrix.cutoffScores
+    getCutoffScores = (): CutoffScore => this.NGramMatrix.getCutoffScores()
 
     /**
      * Given query string, returns numerical score and cutoffs.
@@ -188,7 +188,7 @@ export class TextScorer implements TextScorerInterface {
      * @returns Object containing a `CutoffScore` object `cutoffs` and a numerical `score` between `0` and `1` corresponding to query.
      */
     getTextScoreAndCutoffs = (text: string): { cutoffs: CutoffScore; score: number } => {
-        const { cutoffScores } = this.NGramMatrix
+        const cutoffScores = this.NGramMatrix.getCutoffScores()
         const matrixScore = this.NGramMatrix.getScore(text)
         return { cutoffs: cutoffScores, score: matrixScore }
     }
