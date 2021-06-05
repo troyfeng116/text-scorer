@@ -1,4 +1,4 @@
-import { cleanTextToScore, cleanTrainingText } from '../utils/helpers'
+import { cleanTextToScore, cleanTrainingText, removeOutliers } from '../utils/helpers'
 import { BigramMatrixRow } from './BigramMatrix'
 import { CutoffScore } from '..'
 
@@ -77,8 +77,8 @@ export const runTextThroughBigramMatrix = (bigramMatrix: BigramMatrixRow[], text
  * @returns `CutoffScore` object containing cutoff scores at `strict`, `loose`, and `avg` levels based on `min` and `max` extraction from sample scores.
  */
 export const getBigramCutoffScores = (bigramMatrix: BigramMatrixRow[], goodText: string[], badText: string[], charCodeMap: { [key: number]: number }, ignoreCase: boolean): CutoffScore => {
-    const goodScores = goodText.map((good) => runTextThroughBigramMatrix(bigramMatrix, good, charCodeMap, ignoreCase))
-    const badScores = badText.map((bad) => runTextThroughBigramMatrix(bigramMatrix, bad, charCodeMap, ignoreCase))
+    const goodScores = removeOutliers(goodText.map((good) => runTextThroughBigramMatrix(bigramMatrix, good, charCodeMap, ignoreCase)))
+    const badScores = removeOutliers(badText.map((bad) => runTextThroughBigramMatrix(bigramMatrix, bad, charCodeMap, ignoreCase)))
     let minGoodScore = Number.POSITIVE_INFINITY
     for (const goodScore of goodScores) minGoodScore = Math.min(minGoodScore, goodScore)
     let maxBadScore = 0

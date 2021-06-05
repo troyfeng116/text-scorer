@@ -72,6 +72,38 @@ export const getCharCodeMap = (charsToIncludeStr: string): { charCodeMap: { [key
     return { charCodeMap: charCodeMap, uniqueChars: index, noDuplicateCharsStr: noDuplicateCharsStr }
 }
 
+const getMedian = (arr: number[]): number => {
+    const n = arr.length
+    if (n === 0) return 0
+    const arrCopy = [...arr]
+    arrCopy.sort((a, b) => a - b)
+    const m = Math.floor((n - 1) / 2)
+    if (n % 2 === 1) return arrCopy[m]
+    return (arrCopy[m] + arrCopy[m + 1]) / 2
+}
+
+const getQuartileInfo = (arr: number[]): { median: number; quartile1: number; quartile3: number } => {
+    const arrCopy = [...arr]
+    arrCopy.sort((a, b) => a - b)
+    const n = arrCopy.length
+    const m = Math.floor((n - 1) / 2)
+    const quartile1 = getMedian(arrCopy.slice(0, m))
+    const quartile3 = getMedian(arrCopy.slice(n % 2 === 1 ? m + 1 : m + 2))
+    const median = getMedian(arrCopy)
+    return { median: median, quartile1: quartile1, quartile3: quartile3 }
+}
+
+export const removeOutliers = (arr: number[]): number[] => {
+    if (arr.length <= 3) return [...arr]
+    const { quartile1, quartile3 } = getQuartileInfo(arr)
+    const iqr = quartile3 - quartile1
+    const ans: number[] = []
+    for (const num of arr) {
+        if (quartile1 - 1.5 * iqr <= num && num <= quartile3 + 1.5 * iqr) ans.push(num)
+    }
+    return ans
+}
+
 /**
  * Retrieve hard-coded baseline bigram matrix and cutoff scores pre-calculated with default inputs and stored as stringified JSON.
  *

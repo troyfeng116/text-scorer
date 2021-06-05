@@ -1,5 +1,5 @@
 import { CutoffScore } from '..'
-import { cleanTextToScore, cleanTrainingText } from '../utils/helpers'
+import { cleanTextToScore, cleanTrainingText, removeOutliers } from '../utils/helpers'
 import { TrigramMatrixLayer } from './TrigramMatrix'
 
 /**
@@ -82,8 +82,8 @@ export const runTextThroughTrigramMatrix = (trigramMatrix: TrigramMatrixLayer[],
  * @returns `CutoffScore` object containing cutoff scores at `strict`, `loose`, and `avg` levels based on `min` and `max` extraction from sample scores.
  */
 export const getTrigramCutoffScores = (trigramMatrix: TrigramMatrixLayer[], goodText: string[], badText: string[], charCodeMap: { [key: number]: number }, ignoreCase: boolean): CutoffScore => {
-    const goodScores = goodText.map((good) => runTextThroughTrigramMatrix(trigramMatrix, good, charCodeMap, ignoreCase))
-    const badScores = badText.map((bad) => runTextThroughTrigramMatrix(trigramMatrix, bad, charCodeMap, ignoreCase))
+    const goodScores = removeOutliers(goodText.map((good) => runTextThroughTrigramMatrix(trigramMatrix, good, charCodeMap, ignoreCase)))
+    const badScores = removeOutliers(badText.map((bad) => runTextThroughTrigramMatrix(trigramMatrix, bad, charCodeMap, ignoreCase)))
     let minGoodScore = Number.POSITIVE_INFINITY
     for (const goodScore of goodScores) minGoodScore = Math.min(minGoodScore, goodScore)
     let maxBadScore = 0
