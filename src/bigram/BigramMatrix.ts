@@ -59,6 +59,10 @@ export class BigramMatrix implements BigramMatrixInterface {
         return runTextThroughBigramMatrix(this.bigramMatrix, textToScore, this.charCodeMap, this.ignoreCase)
     }
 
+    getCutoffScores = (): CutoffScore => {
+        return this.cutoffScores
+    }
+
     recalibrateCutoffScores = (goodSamples = DEFAULT_GOOD_SAMPLES, badSamples = DEFAULT_BAD_SAMPLES): void => {
         this.cutoffScores = getBigramCutoffScores(this.bigramMatrix, goodSamples, badSamples, this.charCodeMap, this.ignoreCase)
     }

@@ -1,8 +1,15 @@
 import { CutoffScore } from '..'
 import { cleanTextToScore, cleanTrainingText } from '../utils/helpers'
+import { removeOutliers } from '../utils/stats'
 import { TrigramMatrixLayer } from './TrigramMatrix'
 
-// Create n x (n x n) matrix for all n x n x n transition counts
+/**
+ * Given `n` (size of character space), returns Laplace-smoothed (`d = 1`) trigram frequency matrix.
+ *
+ * Sets up matrix to track all `n`x`n`x`n` trigram transition frequencies.
+ * @param n Number of characters (dimension) of array.
+ * @returns Initial `n`x(`n`x`n`) matrix (array of `n`x`n` matrix layers), Laplace smoothed.
+ */
 export const createEmptyTrigramMatrix = (n: number): TrigramMatrixLayer[] => {
     const matrix: TrigramMatrixLayer[] = new Array(n)
     for (let i = 0; i < n; i++) {
@@ -18,7 +25,14 @@ export const createEmptyTrigramMatrix = (n: number): TrigramMatrixLayer[] => {
     return matrix
 }
 
-// Process character trigrams in text, store counts of each trigram in trigramMatrix
+/**
+ * Process character trigrams in text input and update counts of each trigram in `trigramMatrix`.
+ * @param trigramMatrix `n`x(`n`x`n`) matrix storing frequencies of all trigrams.
+ * @param text Training corpus.
+ * @param charCodeMap Mapping of `charsToInclude` to index `[0,n]` in matrix.
+ * @param charsToInclude String indicating set of characters to consider from training text.
+ * @param ignoreCase Indicates whether training text should be converted to lower case.
+ */
 export const trainTrigramMatrix = (trigramMatrix: TrigramMatrixLayer[], text: string, charCodeMap: { [key: number]: number }, charsToInclude: string, ignoreCase: boolean): void => {
     const cleanText = cleanTrainingText(text, charsToInclude, ignoreCase)
     for (let i = 0; i < cleanText.length - 2; i++) {
@@ -32,8 +46,17 @@ export const trainTrigramMatrix = (trigramMatrix: TrigramMatrixLayer[], text: st
     }
 }
 
-// Process character trigrams in text, run trigrams through trigramMatrix and calculate average probability to normalize by length.
-// Log probabilities to prevent underflow
+/**
+ * Given text query string, returns score for query by processing character trigrams in query and running trigrams through `trigramMatrix`.
+ * The score is equal to the average trigram occurrence probability to normalize over query length.
+ *
+ * Note that this function uses log probabilities during calculation to prevent numerical underflow.
+ * @param trigramMatrix `n`x(`n`x`n`) matrix storing frequencies of all trigrams.
+ * @param text Query string.
+ * @param charCodeMap Mapping of `charsToInclude` to index `[0,n]` in matrix.
+ * @param ignoreCase Indicates whether query text should be converted to lower case.
+ * @returns Score for text query corresponding to average trigram occurrence probability.
+ */
 export const runTextThroughTrigramMatrix = (trigramMatrix: TrigramMatrixLayer[], text: string, charCodeMap: { [key: number]: number }, ignoreCase: boolean): number => {
     const cleanText = cleanTextToScore(text, ignoreCase)
     let numerator = 0,
@@ -50,10 +73,18 @@ export const runTextThroughTrigramMatrix = (trigramMatrix: TrigramMatrixLayer[],
     return Math.exp(numerator / (denominator === 0 ? 1 : denominator))
 }
 
-// Calculate predicted expected cutoff scores (three levels of strictness)
+/**
+ * Utilizes provided corpus of good and bad sample text to learn predicted cutoff scores at three levels of strictness.
+ * @param trigramMatrix `n`x(`n`x`n`) matrix storing frequencies of all trigrams.
+ * @param goodText Well-formed text samples.
+ * @param badText Gibberish-y text samples.
+ * @param charCodeMap Mapping of `charsToInclude` to indices `[0,n]` in matrix.
+ * @param ignoreCase Indicates whether samples should be converted to lower case before processing.
+ * @returns `CutoffScore` object containing cutoff scores at `strict`, `loose`, and `avg` levels based on `min` and `max` extraction from sample scores.
+ */
 export const getTrigramCutoffScores = (trigramMatrix: TrigramMatrixLayer[], goodText: string[], badText: string[], charCodeMap: { [key: number]: number }, ignoreCase: boolean): CutoffScore => {
-    const goodScores = goodText.map((good) => runTextThroughTrigramMatrix(trigramMatrix, good, charCodeMap, ignoreCase))
-    const badScores = badText.map((bad) => runTextThroughTrigramMatrix(trigramMatrix, bad, charCodeMap, ignoreCase))
+    const goodScores = removeOutliers(goodText.map((good) => runTextThroughTrigramMatrix(trigramMatrix, good, charCodeMap, ignoreCase)))
+    const badScores = removeOutliers(badText.map((bad) => runTextThroughTrigramMatrix(trigramMatrix, bad, charCodeMap, ignoreCase)))
     let minGoodScore = Number.POSITIVE_INFINITY
     for (const goodScore of goodScores) minGoodScore = Math.min(minGoodScore, goodScore)
     let maxBadScore = 0

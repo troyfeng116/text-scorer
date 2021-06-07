@@ -59,6 +59,10 @@ export class TrigramMatrix implements TrigramMatrixInterface {
         return runTextThroughTrigramMatrix(this.trigramMatrix, textToScore, this.charCodeMap, this.ignoreCase)
     }
 
+    getCutoffScores = (): CutoffScore => {
+        return this.cutoffScores
+    }
+
     recalibrateCutoffScores = (goodSamples = DEFAULT_GOOD_SAMPLES, badSamples = DEFAULT_BAD_SAMPLES): void => {
         this.cutoffScores = getTrigramCutoffScores(this.trigramMatrix, goodSamples, badSamples, this.charCodeMap, this.ignoreCase)
     }
