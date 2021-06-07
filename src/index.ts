@@ -1,12 +1,11 @@
 import { BigramMatrix } from './bigram'
 import { TrigramMatrix } from './trigram'
 
-// TO DO: Filter outliers from bad/good text score vectors
 /**
- * Contains `strict`, `loose`, and `avg` numerical field definitions used to control strictness when testing for gibberish.
+ * Contains `strict`, `loose`, and `avg` numerical field definitions used to indicate strictness when testing for gibberish.
  *
  * If a query's numerical score is less than `strict`, for example, that query would be marked as gibberish regardless of indicated strictness.
- * But if a query's score is between `strict` and `avg`, that query would be marked as gibberish if `CutoffScoreStrictness.Strict` is indicated and not gibberish otherwise.
+ * But if a query's score falls between `avg` and `loose`, that query would be marked as gibberish if and only if `CutoffScoreStrictness.Loose` is indicated.
  */
 export interface CutoffScore {
     strict: number
@@ -35,12 +34,13 @@ export enum CutoffScoreStrictness {
 }
 
 /**
- * Defines public instance variables and methods for `NGramMatrix` objects.
+ * Defines public methods for `NGramMatrix` objects.
  * Implemented by `BigramMatrix` and `TrigramMatrix`.
  */
 export interface NGramMatrix {
     /**
      * Additional training on matrix in addition to prior training.
+     * Automatically relearns cutoff score predictions.
      * @param text Training corpus.
      */
     train: (text: string) => void
@@ -75,7 +75,7 @@ export interface NGramMatrix {
      *      - `numGibberishWords`: the number of gibberish word tokens.
      *      - `words`: an array containing the individual word tokens extracted from query.
      *      - `gibberishWords`: subset of `words` determined to be gibberish.
-     *      - `cutoffs`: the `CutoffScore` object used to evaluate the query for gibberish tokens.
+     *      - `cutoffs`: the `CutoffScore` object used to determine gibberish tokens.
      */
     getWordByWordAnalysis: (
         text: string,
@@ -90,17 +90,17 @@ export interface NGramMatrix {
 }
 
 /**
- * Additional initialization options for `NGramMatrix` constructors. All fields are optional. `NGramMatrixOptions` fields include:
+ * Additional initialization options for `NGramMatrix` constructors. All `NGramMatrixOptions` fields are optional:
  * - #### `initialTrainingText`
  *      Baseline corpus from which `TextScorer` learns n-gram frequencies.
- *      Recommended to use a well-formed and substantial corpus in desired language.
+ *      Recommended to use a well-formed and substantial corpus.
  *      Defaults to J.K. Rowlings's *Harry Potter and the Sorcerer's Stone*.
  * - #### `goodSamples`
- *      An array of strings consisting of well-formed queries (phrases, sentences, words, etc.) in desired language.
+ *      An array of strings consisting of well-formed queries (phrases, sentences, words, etc.).
  *      Used to calculate cutoff score predictions by learning typical scores of well-formed samples.
  *      Defaults to hard-coded array of well-formed English strings.
  * - #### `badSamples`
- *      An array of strings consisting of misspelled or gibberish queries in desired language.
+ *      An array of strings consisting of misspelled or gibberish queries.
  *      Used to calculate cutoff score predictions by learning typical scores of gibberish samples.
  *      Defaults to hard-coded array of badly misspelled and gibberish English strings.
  * - #### `ignoreCase`
@@ -150,7 +150,7 @@ export class TextScorer implements TextScorerInterface {
     /**
      * Initializes `TextScorer` object.
      * @param useBigram Indicates whether to use bigrams or trigrams for training and for scoring inputs. Defaults to `true` (prefers bigrams).
-     * @param options Additional initialization options. All fields are optional. `NGramMatrixOptions` fields include:
+     * @param options Additional initialization options for `NGramMatrix` constructors. All `NGramMatrixOptions` fields are optional:
      * - #### `initialTrainingText`
      *      Baseline corpus from which `TextScorer` learns n-gram frequencies.
      *      Recommended to use a well-formed and substantial corpus.
@@ -169,8 +169,7 @@ export class TextScorer implements TextScorerInterface {
      * - #### `additionalCharsToInclude`
      *      A string consisting of additional chars to include as n-gram nodes, in addition to default chars (`a-z` and white space, plus `A-Z` if `ignoreCase` is `false`).
      *      For example, initializing with `additionCharsToInclude = '.,;?!` would add nodes for common punctuation chars.
-     *      Note that adding many additional chars may affect runtime, increase noise, and flatten overall distribution, causing more unpredictability for binary gibberish prediction operations.
-     *      Defaults to empty string (i.e. model only considers alphabetic chars and spaces).
+     *      Note that adding many additional chars may affect runtime, increase noise, and fla
      */
     constructor(useBigram = true, options?: NGramMatrixOptions) {
         this.NGramMatrix = useBigram ? new BigramMatrix(options) : new TrigramMatrix(options)
